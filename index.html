@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Орчуулагч баг манга оруулж, уншигчид онлайнаар унших бүрэн ажиллагаатай платформ." />
+  <meta name="theme-color" content="#15111f" />
+  <title>MangaVerse — Монгол манга платформ</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="setupNotice" class="setup-notice hidden" role="alert"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="MangaVerse нүүр">
+      <img src="assets/logo.svg" alt="" />
+      <span>Manga<span>Verse</span></span>
+    </a>
+
+    <nav id="mainNav" class="main-nav hidden" aria-label="Үндсэн цэс">
+      <button class="nav-link active" data-view="library">Номын сан</button>
+      <button class="nav-link" data-view="favorites">Хадгалсан</button>
+      <button id="studioNav" class="nav-link hidden" data-view="studio">Орчуулагчийн студи</button>
+    </nav>
+
+    <div class="header-actions">
+      <span id="userBadge" class="user-badge hidden"></span>
+      <button id="logoutBtn" class="btn btn-ghost hidden">Гарах</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="guestView" class="guest-layout">
+      <div class="hero-copy">
+        <span class="eyebrow">Монгол манга уншлагын платформ</span>
+        <h1>Орчуулгаа нийтэл.<br /><span>Уншигчдаа нэг дор цуглуул.</span></h1>
+        <p>
+          Орчуулагч баг манга, бүлэг, хуудсаа оруулна. Уншигчид дуртай бүтээлээ хадгалж,
+          үргэлжлүүлэн уншина. Бүх өгөгдөл Supabase-д аюулгүй хадгалагдана.
+        </p>
+        <div class="feature-row">
+          <div><strong>2</strong><span>төрлийн эрх</span></div>
+          <div><strong>∞</strong><span>манга, бүлэг</span></div>
+          <div><strong>100%</strong><span>responsive</span></div>
+        </div>
+      </div>
+
+      <section class="auth-card" aria-labelledby="authTitle">
+        <div class="auth-tabs" role="tablist">
+          <button id="loginTab" class="auth-tab active" type="button">Нэвтрэх</button>
+          <button id="registerTab" class="auth-tab" type="button">Бүртгүүлэх</button>
+        </div>
+
+        <h2 id="authTitle">Тавтай морил</h2>
+        <p id="authSubtitle">Имэйл болон нууц үгээрээ нэвтэрнэ үү.</p>
+
+        <form id="authForm" novalidate>
+          <label id="nameField" class="field hidden">
+            <span>Нэр</span>
+            <input id="displayName" type="text" autocomplete="name" maxlength="60" placeholder="Таны нэр" />
+          </label>
+
+          <label class="field">
+            <span>Имэйл</span>
+            <input id="email" type="email" autocomplete="email" required placeholder="name@example.com" />
+          </label>
+
+          <label class="field">
+            <span>Нууц үг</span>
+            <input id="password" type="password" autocomplete="current-password" minlength="8" required placeholder="Доод тал нь 8 тэмдэгт" />
+          </label>
+
+          <div id="roleField" class="field hidden">
+            <span>Бүртгэлийн төрөл</span>
+            <div class="role-options">
+              <label><input type="radio" name="accountRole" value="reader" checked /> Уншигч</label>
+              <label><input type="radio" name="accountRole" value="translator" /> Орчуулагч баг</label>
+            </div>
+          </div>
+
+          <label id="inviteField" class="field hidden">
+            <span>Орчуулагчийн урилгын код</span>
+            <input id="inviteCode" type="text" autocomplete="off" maxlength="80" placeholder="Жишээ: TEAM-2026" />
+          </label>
+
+          <button id="authSubmit" class="btn btn-primary btn-block" type="submit">Нэвтрэх</button>
+          <p id="authMessage" class="form-message" aria-live="polite"></p>
+        </form>
+      </section>
+    </section>
+
+    <section id="appView" class="app-shell hidden">
+      <section id="libraryView" class="view-panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Шинэ бүтээлүүд</span>
+            <h2>Манга номын сан</h2>
+          </div>
+          <label class="search-box">
+            <span class="sr-only">Манга хайх</span>
+            <input id="searchInput" type="search" placeholder="Нэр, төрөл хайх..." />
+          </label>
+        </div>
+        <div id="libraryGrid" class="manga-grid"></div>
+        <div id="libraryEmpty" class="empty-state hidden">
+          <div class="empty-icon">📚</div>
+          <h3>Одоогоор нийтлэгдсэн манга алга</h3>
+          <p>Орчуулагч баг эхний бүтээлээ нийтэлсний дараа энд харагдана.</p>
+        </div>
+      </section>
+
+      <section id="favoritesView" class="view-panel hidden">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Таны сонголт</span>
+            <h2>Хадгалсан манга</h2>
+          </div>
+        </div>
+        <div id="favoritesGrid" class="manga-grid"></div>
+        <div id="favoritesEmpty" class="empty-state hidden">
+          <div class="empty-icon">♡</div>
+          <h3>Хадгалсан манга алга</h3>
+          <p>Манганы дэлгэрэнгүй хэсэгт зүрхэн товч дарж хадгална.</p>
+        </div>
+      </section>
+
+      <section id="studioView" class="view-panel hidden">
+        <div class="section-heading studio-heading">
+          <div>
+            <span class="eyebrow">Орчуулагчийн хэсэг</span>
+            <h2>Миний бүтээлүүд</h2>
+          </div>
+          <button id="openCreateMangaBtn" class="btn btn-primary">+ Шинэ манга</button>
+        </div>
+        <div id="studioGrid" class="studio-grid"></div>
+        <div id="studioEmpty" class="empty-state hidden">
+          <div class="empty-icon">✦</div>
+          <h3>Эхний мангаа оруулна уу</h3>
+          <p>Нэр, тайлбар, нүүр зураг нэмээд дараа нь бүлгүүдээ байршуулна.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="mangaDialog" class="modal manga-modal">
+    <button class="modal-close" data-close-dialog="mangaDialog" aria-label="Хаах">×</button>
+    <div id="mangaDetail"></div>
+  </dialog>
+
+  <dialog id="createMangaDialog" class="modal form-modal">
+    <button class="modal-close" data-close-dialog="createMangaDialog" aria-label="Хаах">×</button>
+    <div class="modal-title">
+      <span class="eyebrow">Шинэ бүтээл</span>
+      <h2>Манга нэмэх</h2>
+    </div>
+    <form id="createMangaForm" class="stack-form">
+      <label class="field"><span>Манганы нэр</span><input id="mangaTitle" required maxlength="120" /></label>
+      <label class="field"><span>Тайлбар</span><textarea id="mangaDescription" required maxlength="1200" rows="5"></textarea></label>
+      <label class="field"><span>Төрөл</span><input id="mangaGenres" maxlength="180" placeholder="Romance, Fantasy, Drama" /></label>
+      <label class="field"><span>Нүүр зураг</span><input id="mangaCover" type="file" accept="image/jpeg,image/png,image/webp" required /></label>
+      <label class="toggle-row"><input id="mangaPublished" type="checkbox" /> Шууд нийтлэх</label>
+      <button class="btn btn-primary btn-block" type="submit">Манга үүсгэх</button>
+      <p id="createMangaMessage" class="form-message" aria-live="polite"></p>
+    </form>
+  </dialog>
+
+  <dialog id="manageMangaDialog" class="modal manage-modal">
+    <button class="modal-close" data-close-dialog="manageMangaDialog" aria-label="Хаах">×</button>
+    <div id="manageMangaContent"></div>
+  </dialog>
+
+  <section id="readerOverlay" class="reader-overlay hidden" aria-label="Манга уншигч">
+    <div class="reader-toolbar">
+      <button id="closeReaderBtn" class="btn btn-ghost">← Буцах</button>
+      <div class="reader-title-wrap">
+        <strong id="readerMangaTitle"></strong>
+        <span id="readerChapterTitle"></span>
+      </div>
+      <div class="reader-nav">
+        <button id="prevChapterBtn" class="btn btn-ghost">Өмнөх</button>
+        <button id="nextChapterBtn" class="btn btn-primary">Дараах</button>
+      </div>
+    </div>
+    <div id="readerPages" class="reader-pages"></div>
+    <button id="readerTopBtn" class="reader-top" aria-label="Дээш очих">↑</button>
+  </section>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
