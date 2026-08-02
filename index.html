@@ -10,7 +10,7 @@
 <link href="assets/logo.svg" rel="icon" type="image/svg+xml"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="https://cdn.jsdelivr.net" rel="preconnect"/>
-<link href="styles.css?v=9.0.0" rel="stylesheet"/>
+<link href="styles.css?v=10.0.0" rel="stylesheet"/>
 
 </head>
 <body>
@@ -238,6 +238,33 @@
 <span>Хүлээгдэж буй хүсэлтийг баримттай нь шалгаад зөвшөөрөх эсвэл татгалзана.</span>
 </div>
 <div class="admin-request-list" id="adminRequests"></div>
+<section class="admin-subsection">
+<div class="section-heading compact-heading"><div><span class="eyebrow">Багийн удирдлага</span><h2>Орчуулагч багууд</h2></div><button class="btn btn-ghost" data-refresh-teams type="button">Шинэчлэх</button></div>
+<div class="admin-team-layout">
+<form class="admin-team-form stack-form" id="adminCreateTeamForm">
+<label class="field"><span>Багийн нэр</span><input id="adminTeamName" maxlength="100" required type="text" placeholder="Жишээ: Moonlight баг"/></label>
+<label class="field"><span>Тусгай код</span><input id="adminTeamCode" maxlength="80" required type="password" placeholder="Багт өгөх нууц код"/></label>
+<label class="field"><span>Гишүүний дээд тоо</span><input id="adminTeamMax" min="1" max="20" required type="number" value="20"/></label>
+<label class="field"><span>Банк</span><input id="adminTeamBank" maxlength="80" required type="text" value="M банк"/></label>
+<label class="field"><span>Данс</span><input id="adminTeamAccount" maxlength="80" required type="text"/></label>
+<label class="field"><span>IBAN</span><input id="adminTeamIban" maxlength="100" required type="text"/></label>
+<label class="field"><span>Данс эзэмшигч</span><input id="adminTeamHolder" maxlength="120" required type="text"/></label>
+<button class="btn btn-primary btn-block" type="submit">Баг үүсгэх</button><p class="form-message" id="adminTeamMessage"></p>
+</form>
+<div class="admin-team-list" id="adminTeamList"></div>
+</div>
+</section>
+<section class="admin-subsection">
+<div class="section-heading compact-heading">
+<div>
+<span class="eyebrow">Багт илгээсэн дэмжлэг</span>
+<h2>Super Like хүсэлтүүд</h2>
+</div>
+<button class="btn btn-ghost" data-refresh-superlikes type="button">Шинэчлэх</button>
+</div>
+<p class="admin-summary">1 Super Like = 1,000₮. Баримтыг шалгаж зөвшөөрсний дараа баг болон бүлгийн тоонд нэмэгдэнэ.</p>
+<div class="admin-request-list" id="adminSuperLikeRequests"></div>
+</section>
 </section>
 <section class="view-panel hidden" id="studioView">
 <div class="section-heading studio-heading">
@@ -245,8 +272,12 @@
 <span class="eyebrow">Орчуулагчийн хэсэг</span>
 <h2>Миний бүтээлүүд</h2>
 </div>
-<button class="btn btn-primary" id="openCreateMangaBtn">+ Шинэ манга</button>
+<div class="studio-heading-actions">
+<button class="btn btn-ghost" id="openCreateChapterBtn" type="button">+ Шинэ бүлэг</button>
+<button class="btn btn-primary" id="openCreateMangaBtn" type="button">+ Шинэ манга</button>
 </div>
+</div>
+<div class="team-studio-summary" id="teamStudioSummary"></div>
 <div class="studio-grid" id="studioGrid"></div>
 <div class="empty-state hidden" id="studioEmpty">
 <div class="empty-icon">✦</div>
@@ -276,6 +307,7 @@
 <div class="profile-membership-copy">
 <h2>Plus+ эрх</h2>
 <p id="profileMembershipText">Танд одоогоор идэвхтэй гишүүнчлэл байхгүй.</p>
+<strong class="membership-days hidden" id="profileMembershipDays"></strong>
 <small id="profileMembershipSubtext">Plus+ эрх авснаар бүх бүлгийг унших боломжтой.</small>
 </div>
 <button class="btn btn-primary profile-membership-button" data-view-target="membership" type="button">✦ Plus+ эрх авах</button>
@@ -326,8 +358,9 @@
 <span class="eyebrow">Шинэ бүтээл</span>
 <h2>Манга нэмэх</h2>
 </div>
-<form class="stack-form" id="createMangaForm">
-<label class="field"><span>Манганы нэр</span><input id="mangaTitle" maxlength="120" required=""/></label>
+<p class="form-context" id="createMangaTeamLabel"></p>
+<form autocomplete="off" class="stack-form" id="createMangaForm">
+<label class="field"><span>Манганы нэр</span><input autocomplete="off" id="mangaTitle" maxlength="120" required=""/></label>
 <label class="field"><span>Тайлбар</span><textarea id="mangaDescription" maxlength="1200" required="" rows="5"></textarea></label>
 <label class="field"><span>Төрөл</span><input id="mangaGenres" maxlength="180" placeholder="Romance, Fantasy, Drama"/></label>
 <label class="field">
@@ -345,6 +378,23 @@
 <p aria-live="polite" class="form-message" id="createMangaMessage"></p>
 </form>
 </dialog>
+<dialog class="modal form-modal" id="createChapterDialog">
+<button aria-label="Хаах" class="modal-close" data-close-dialog="createChapterDialog">×</button>
+<div class="modal-title">
+<span class="eyebrow">Багийн бүтээл</span>
+<h2>Шинэ бүлэг оруулах</h2>
+</div>
+<p class="form-context" id="createChapterTeamLabel"></p>
+<form autocomplete="off" class="stack-form" id="quickCreateChapterForm">
+<label class="field"><span>Манга сонгох</span><select id="quickChapterManga" required></select></label>
+<label class="field"><span>Бүлгийн дугаар</span><input id="quickChapterNumber" min="0" placeholder="Жишээ: 12 эсвэл 12.5" required step="0.1" type="number"/></label>
+<label class="field"><span>Бүлгийн нэр</span><input autocomplete="off" id="quickChapterTitle" maxlength="160" placeholder="Жишээ: Шинэ эхлэл"/></label>
+<label class="field"><span>Хуудасны зургууд</span><input accept="image/jpeg,image/png,image/webp" id="quickChapterPages" multiple required type="file"/></label>
+<label class="toggle-row"><input id="quickChapterPublished" type="checkbox"/> Шууд нийтлэх</label>
+<button class="btn btn-primary btn-block" type="submit">Бүлэг оруулах</button>
+<p aria-live="polite" class="form-message" id="quickChapterMessage"></p>
+</form>
+</dialog>
 <dialog class="modal manage-modal" id="manageMangaDialog">
 <button aria-label="Хаах" class="modal-close" data-close-dialog="manageMangaDialog">×</button>
 <div id="manageMangaContent"></div>
@@ -360,7 +410,27 @@
 <button class="btn btn-primary btn-block" type="submit">Нууц үг хадгалах</button>
 <p aria-live="polite" class="form-message" id="resetPasswordMessage"></p>
 </form>
-</dialog><section aria-label="Манга уншигч" class="reader-overlay hidden" id="readerOverlay">
+</dialog>
+<dialog class="modal form-modal" id="superLikeDialog">
+<button aria-label="Хаах" class="modal-close" data-close-dialog="superLikeDialog">×</button>
+<div class="modal-title">
+<span class="eyebrow">Орчуулагч багийг дэмжих</span>
+<h2>Super Like илгээх</h2>
+</div>
+<div class="super-like-target" id="superLikeTarget"></div>
+<div class="bank-card compact-bank-card" id="superLikeBank"></div>
+<form class="stack-form" id="superLikeForm">
+<label class="field"><span>Super Like-ийн тоо</span><input id="superLikeQuantity" min="1" max="9999" required type="number" value="1"/></label>
+<div class="super-like-total">Нийт төлөх: <strong id="superLikeTotal">1,000₮</strong></div>
+<label class="field"><span>Шилжүүлэгчийн нэр</span><input id="superLikeSenderName" maxlength="120" required type="text"/></label>
+<label class="field"><span>Гүйлгээний утга</span><input id="superLikeReference" maxlength="180" required type="text"/></label>
+<label class="field"><span>Шилжүүлсэн огноо</span><input id="superLikeTransferDate" required type="date"/></label>
+<label class="field"><span>Төлбөрийн баримт</span><input accept="image/jpeg,image/png,image/webp,application/pdf" id="superLikeReceipt" required type="file"/></label>
+<button class="btn btn-primary btn-block" type="submit">Хүсэлт илгээх</button>
+<p aria-live="polite" class="form-message" id="superLikeMessage"></p>
+</form>
+</dialog>
+<section aria-label="Манга уншигч" class="reader-overlay hidden" id="readerOverlay">
 <div class="reader-toolbar">
 <button class="btn btn-ghost" id="closeReaderBtn">← Буцах</button>
 <div class="reader-title-wrap">
@@ -373,11 +443,29 @@
 </div>
 </div>
 <div class="reader-pages" id="readerPages"></div>
+<section class="chapter-community" id="chapterCommunity">
+<div class="community-head">
+<div>
+<span class="eyebrow">Бүлгийн хэлэлцүүлэг</span>
+<h2>Сэтгэгдэл ба дэмжлэг</h2>
+</div>
+<div class="community-actions">
+<button class="community-like" id="chapterLikeBtn" type="button">♡ <span id="chapterLikeCount">0</span></button>
+<button class="btn btn-primary" id="openSuperLikeBtn" type="button">✦ Super Like <span id="chapterSuperLikeCount">0</span></button>
+</div>
+</div>
+<form class="comment-form" id="chapterCommentForm">
+<textarea id="chapterCommentBody" maxlength="500" placeholder="Энэ бүлгийн тухай сэтгэгдлээ бичнэ үү..." required rows="3"></textarea>
+<div><span class="comment-limit">500 хүртэл тэмдэгт</span><button class="btn btn-primary" type="submit">Сэтгэгдэл үлдээх</button></div>
+<p class="form-message" id="chapterCommentMessage"></p>
+</form>
+<div class="chapter-comments" id="chapterComments"></div>
+</section>
 <button aria-label="Дээш очих" class="reader-top" id="readerTopBtn">↑</button>
 </section>
 <div aria-live="polite" class="toast hidden" id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=8.0.0"></script>
-<script defer="" src="app.js?v=9.0.0"></script>
+<script src="config.js?v=10.0.0"></script>
+<script defer="" src="app.js?v=10.0.0"></script>
 </body>
 </html>
