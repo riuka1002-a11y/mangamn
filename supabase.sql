@@ -1122,3 +1122,431 @@ select
   (select public from storage.buckets where id='chapter-pages') as private_bucket_public_flag,
   exists(select 1 from pg_policies where schemaname='storage' and tablename='objects' and policyname='chapter_private_select') as select_policy,
   exists(select 1 from pg_policies where schemaname='storage' and tablename='objects' and policyname='chapter_private_insert') as insert_policy;
+
+
+-- ============================================================
+-- MangaMN v12 — Single Admin Dashboard & Analytics
+-- Run once in Supabase SQL Editor after v11.
+-- Main administrator: riuka1002@gmail.com
+-- ============================================================
+
+-- 1. User account state.
+alter table public.profiles
+  add column if not exists account_status text not null default 'active';
+
+do $$
+begin
+  if not exists(
+    select 1 from pg_constraint
+    where conname='profiles_account_status_check'
+      and conrelid='public.profiles'::regclass
+  ) then
+    alter table public.profiles
+      add constraint profiles_account_status_check
+      check(account_status in('active','suspended'));
+  end if;
+end $$;
+
+create index if not exists profiles_account_status_idx
+on public.profiles(account_status);
+
+-- 2. Keep exactly one administrator.
+do $$
+declare
+  v_admin_id uuid;
+begin
+  select id into v_admin_id
+  from auth.users
+  where lower(email)=lower('riuka1002@gmail.com')
+  limit 1;
+
+  if v_admin_id is null then
+    raise exception 'riuka1002@gmail.com хэрэглэгч олдсонгүй. Эхлээд сайтад энэ имэйлээр бүртгүүлнэ үү.';
+  end if;
+
+  update public.profiles
+  set role='reader'
+  where role='admin' and id<>v_admin_id;
+
+  update public.profiles
+  set role='admin', account_status='active'
+  where id=v_admin_id;
+end $$;
+
+drop index if exists public.profiles_single_admin_idx;
+create unique index profiles_single_admin_idx
+on public.profiles(role)
+where role='admin';
+
+-- 3. Active-account-aware security helpers.
+create or replace function public.is_admin(check_user uuid default auth.uid())
+returns boolean
+language sql
+security definer
+stable
+set search_path=public
+as $$
+  select exists(
+    select 1 from public.profiles
+    where id=check_user
+      and role='admin'
+      and account_status='active'
+  );
+$$;
+
+create or replace function public.has_active_membership(check_user uuid default auth.uid())
+returns boolean
+language sql
+security definer
+stable
+set search_path=public
+as $$
+  select exists(
+    select 1
+    from public.memberships m
+    join public.profiles p on p.id=m.user_id
+    where m.user_id=check_user
+      and m.expires_at>now()
+      and p.account_status='active'
+  );
+$$;
+
+create or replace function public.same_translator_team(other_user uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path=public
+as $$
+  select public.is_admin(auth.uid()) or exists(
+    select 1
+    from public.profiles me
+    join public.profiles other on other.id=other_user
+    where me.id=auth.uid()
+      and me.account_status='active'
+      and other.account_status='active'
+      and me.role='translator'
+      and me.translator_team_id is not null
+      and me.translator_team_id=other.translator_team_id
+  );
+$$;
+
+create or replace function public.can_manage_manga(check_manga uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path=public
+as $$
+  select public.is_admin(auth.uid()) or exists(
+    select 1
+    from public.mangas m
+    join public.profiles p on p.id=auth.uid()
+    where m.id=check_manga
+      and p.account_status='active'
+      and p.role='translator'
+      and (
+        m.translator_id=auth.uid()
+        or (
+          m.team_id is not null
+          and p.translator_team_id=m.team_id
+        )
+      )
+  );
+$$;
+
+-- 4. Admin dashboard data.
+create or replace function public.get_admin_dashboard()
+returns jsonb
+language plpgsql
+security definer
+stable
+set search_path=public
+as $$
+declare
+  result jsonb;
+begin
+  if not public.is_admin(auth.uid()) then
+    raise exception 'Админ эрх шаардлагатай';
+  end if;
+
+  select jsonb_build_object(
+    'summary', jsonb_build_object(
+      'total_users', (select count(*) from public.profiles),
+      'active_users', (select count(*) from public.profiles where account_status='active'),
+      'suspended_users', (select count(*) from public.profiles where account_status='suspended'),
+      'new_users_30d', (select count(*) from auth.users where created_at>=now()-interval '30 days'),
+      'reader_users', (select count(*) from public.profiles where role='reader'),
+      'translator_users', (select count(*) from public.profiles where role='translator'),
+      'active_members', (select count(*) from public.memberships where expires_at>now()),
+      'expiring_7d', (select count(*) from public.memberships where expires_at>now() and expires_at<=now()+interval '7 days'),
+      'pending_membership_requests', (select count(*) from public.membership_requests where status='pending'),
+      'pending_super_like_requests', (select count(*) from public.super_like_requests where status='pending'),
+      'membership_revenue', (select coalesce(sum(amount_mnt),0) from public.membership_requests where status='approved'),
+      'membership_revenue_30d', (select coalesce(sum(amount_mnt),0) from public.membership_requests where status='approved' and reviewed_at>=now()-interval '30 days'),
+      'super_like_revenue', (select coalesce(sum(amount_mnt),0) from public.super_like_requests where status='approved'),
+      'total_revenue',
+        (select coalesce(sum(amount_mnt),0) from public.membership_requests where status='approved')
+        +
+        (select coalesce(sum(amount_mnt),0) from public.super_like_requests where status='approved'),
+      'published_manga', (select count(*) from public.mangas where status='published'),
+      'published_chapters', (select count(*) from public.chapters where published=true and upload_status='ready'),
+      'translator_teams', (select count(*) from public.translator_teams where active=true),
+      'comments', (select count(*) from public.chapter_comments)
+    ),
+    'users', coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'id',u.id,
+          'email',u.email,
+          'display_name',p.display_name,
+          'role',p.role,
+          'account_status',p.account_status,
+          'created_at',u.created_at,
+          'last_sign_in_at',u.last_sign_in_at,
+          'team_name',t.name,
+          'membership_plan_code',ms.plan_code,
+          'membership_plan_name',mp.name,
+          'membership_expires_at',ms.expires_at,
+          'membership_active',coalesce(ms.expires_at>now(),false),
+          'days_remaining',case
+            when ms.expires_at>now()
+            then greatest(0,ceil(extract(epoch from(ms.expires_at-now()))/86400.0)::integer)
+            else 0
+          end
+        )
+        order by u.created_at desc
+      )
+      from auth.users u
+      join public.profiles p on p.id=u.id
+      left join public.translator_teams t on t.id=p.translator_team_id
+      left join public.memberships ms on ms.user_id=u.id
+      left join public.membership_plans mp on mp.code=ms.plan_code
+    ),'[]'::jsonb)
+  ) into result;
+
+  return result;
+end;
+$$;
+
+-- 5. Admin user state management.
+create or replace function public.admin_set_user_status(
+  p_user_id uuid,
+  p_status text
+) returns boolean
+language plpgsql
+security definer
+set search_path=public
+as $$
+declare
+  target_role text;
+begin
+  if not public.is_admin(auth.uid()) then
+    raise exception 'Админ эрх шаардлагатай';
+  end if;
+  if p_status not in('active','suspended') then
+    raise exception 'Төлөв буруу';
+  end if;
+
+  select role into target_role
+  from public.profiles
+  where id=p_user_id
+  for update;
+
+  if not found then raise exception 'Хэрэглэгч олдсонгүй'; end if;
+  if target_role='admin' then
+    raise exception 'Үндсэн админы төлөвийг эндээс өөрчлөх боломжгүй';
+  end if;
+
+  update public.profiles
+  set account_status=p_status
+  where id=p_user_id;
+
+  return true;
+end;
+$$;
+
+-- 6. Manual membership adjustment.
+create or replace function public.admin_adjust_membership(
+  p_user_id uuid,
+  p_action text,
+  p_days integer default 0
+) returns timestamptz
+language plpgsql
+security definer
+set search_path=public
+as $$
+declare
+  target_role text;
+  base_time timestamptz;
+  new_expiry timestamptz;
+begin
+  if not public.is_admin(auth.uid()) then
+    raise exception 'Админ эрх шаардлагатай';
+  end if;
+
+  select role into target_role
+  from public.profiles
+  where id=p_user_id;
+
+  if not found then raise exception 'Хэрэглэгч олдсонгүй'; end if;
+  if target_role='admin' then
+    raise exception 'Үндсэн админы эрхийг өөрчлөх боломжгүй';
+  end if;
+
+  if p_action='revoke' then
+    update public.memberships
+    set expires_at=now(),updated_at=now()
+    where user_id=p_user_id;
+    return now();
+  end if;
+
+  if p_action<>'add_days' then
+    raise exception 'Үйлдэл буруу';
+  end if;
+  if p_days<1 or p_days>3650 then
+    raise exception 'Хоногийн тоо 1-3650 байна';
+  end if;
+
+  select greatest(now(),coalesce(expires_at,now()))
+  into base_time
+  from public.memberships
+  where user_id=p_user_id;
+
+  if base_time is null then base_time:=now(); end if;
+  new_expiry:=base_time+make_interval(days=>p_days);
+
+  insert into public.memberships(user_id,plan_code,starts_at,expires_at,updated_at)
+  values(p_user_id,'month1',now(),new_expiry,now())
+  on conflict(user_id) do update
+  set expires_at=new_expiry,
+      updated_at=now();
+
+  return new_expiry;
+end;
+$$;
+
+revoke all on function public.get_admin_dashboard() from public;
+revoke all on function public.admin_set_user_status(uuid,text) from public;
+revoke all on function public.admin_adjust_membership(uuid,text,integer) from public;
+
+grant execute on function public.get_admin_dashboard() to authenticated;
+grant execute on function public.admin_set_user_status(uuid,text) to authenticated;
+grant execute on function public.admin_adjust_membership(uuid,text,integer) to authenticated;
+
+-- Verification.
+select
+  u.email,
+  p.role,
+  p.account_status
+from auth.users u
+join public.profiles p on p.id=u.id
+where p.role='admin';
+
+select public.get_admin_dashboard()->'summary' as admin_summary;
+
+
+-- ================= V13 =================
+-- MangaVerse v13: gamification + translator statistics
+-- Run once after v12.
+
+create table if not exists public.user_xp_events(
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  event_type text not null check(event_type in('daily_login','read_chapter','favorite_manga','comment')),
+  entity_id uuid not null,
+  event_day date not null default current_date,
+  xp integer not null check(xp>0),
+  created_at timestamptz not null default now(),
+  unique(user_id,event_type,entity_id,event_day)
+);
+create index if not exists user_xp_events_user_created_idx on public.user_xp_events(user_id,created_at desc);
+alter table public.user_xp_events enable row level security;
+drop policy if exists user_xp_events_read_own on public.user_xp_events;
+create policy user_xp_events_read_own on public.user_xp_events for select to authenticated using(user_id=auth.uid() or public.is_admin(auth.uid()));
+
+create or replace function public.award_gamification(p_event_type text,p_entity_id uuid)
+returns integer
+language plpgsql
+security definer
+set search_path=public
+as $$
+declare
+  v_xp integer;
+  v_total integer;
+begin
+  if auth.uid() is null then raise exception 'Authentication required'; end if;
+  if p_entity_id is null then raise exception 'Entity required'; end if;
+  v_xp:=case p_event_type
+    when 'daily_login' then 5
+    when 'read_chapter' then 10
+    when 'favorite_manga' then 3
+    when 'comment' then 5
+    else 0 end;
+  if v_xp=0 then raise exception 'Unsupported event'; end if;
+  insert into public.user_xp_events(user_id,event_type,entity_id,event_day,xp)
+  values(auth.uid(),p_event_type,p_entity_id,current_date,v_xp)
+  on conflict(user_id,event_type,entity_id,event_day) do nothing;
+  select coalesce(sum(xp),0)::integer into v_total from public.user_xp_events where user_id=auth.uid();
+  return v_total;
+end;$$;
+revoke all on function public.award_gamification(text,uuid) from public;
+grant execute on function public.award_gamification(text,uuid) to authenticated;
+
+create or replace function public.get_my_gamification()
+returns jsonb
+language sql
+security definer
+stable
+set search_path=public
+as $$
+with totals as(
+  select coalesce(sum(xp),0)::integer total_xp from public.user_xp_events where user_id=auth.uid()
+),today as(
+  select
+    count(*) filter(where event_type='read_chapter')::integer reads,
+    count(*) filter(where event_type='comment')::integer comments,
+    count(*) filter(where event_type='favorite_manga')::integer favorites
+  from public.user_xp_events where user_id=auth.uid() and event_day=current_date
+)
+select jsonb_build_object(
+  'total_xp',t.total_xp,
+  'rank',case when t.total_xp>=2000 then 'Манга Мастер' when t.total_xp>=800 then 'Отаку' when t.total_xp>=300 then 'Судлаач' when t.total_xp>=100 then 'Уншигч' else 'Шинэков' end,
+  'rank_base_xp',case when t.total_xp>=2000 then 2000 when t.total_xp>=800 then 800 when t.total_xp>=300 then 300 when t.total_xp>=100 then 100 else 0 end,
+  'next_rank_xp',case when t.total_xp>=2000 then 2000 when t.total_xp>=800 then 2000 when t.total_xp>=300 then 800 when t.total_xp>=100 then 300 else 100 end,
+  'quests',jsonb_build_object('reads',d.reads,'comments',d.comments,'favorites',d.favorites)
+) from totals t cross join today d;
+$$;
+revoke all on function public.get_my_gamification() from public;
+grant execute on function public.get_my_gamification() to authenticated;
+
+create or replace function public.get_my_team_stats()
+returns jsonb
+language plpgsql
+security definer
+stable
+set search_path=public
+as $$
+declare
+  v_team uuid;
+  result jsonb;
+begin
+  select translator_team_id into v_team from public.profiles where id=auth.uid() and role in('translator','admin');
+  if v_team is null then return jsonb_build_object('mangas',0,'chapters',0,'reads',0,'favorites',0,'comments',0,'super_likes',0); end if;
+  select jsonb_build_object(
+    'mangas',(select count(*) from public.mangas m where m.team_id=v_team),
+    'chapters',(select count(*) from public.chapters c join public.mangas m on m.id=c.manga_id where m.team_id=v_team),
+    'reads',(select count(*) from public.reading_progress rp join public.chapters c on c.id=rp.chapter_id join public.mangas m on m.id=c.manga_id where m.team_id=v_team),
+    'favorites',(select count(*) from public.favorites f join public.mangas m on m.id=f.manga_id where m.team_id=v_team),
+    'comments',(select count(*) from public.chapter_comments cc join public.chapters c on c.id=cc.chapter_id join public.mangas m on m.id=c.manga_id where m.team_id=v_team),
+    'super_likes',(select coalesce(sum(quantity),0) from public.super_like_requests where team_id=v_team and status='approved')
+  ) into result;
+  return result;
+end;$$;
+revoke all on function public.get_my_team_stats() from public;
+grant execute on function public.get_my_team_stats() to authenticated;
+
+select to_regclass('public.user_xp_events') as user_xp_events,
+       to_regprocedure('public.award_gamification(text,uuid)') as award_rpc,
+       to_regprocedure('public.get_my_gamification()') as gamification_rpc,
+       to_regprocedure('public.get_my_team_stats()') as team_stats_rpc;

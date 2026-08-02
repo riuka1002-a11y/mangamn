@@ -1,5 +1,5 @@
-const CACHE="mangaverse-v11-0-0";
-const CORE=["./","./index.html","./styles.css?v=11.0.0","./app.js?v=11.0.0","./config.js","./assets/logo-v8.svg","./manifest.webmanifest"];
+const CACHE="mangaverse-v13-0-0";
+const CORE=["./","./index.html","./styles.css?v=13.0.0","./app.js?v=13.0.0","./v13.js?v=13.0.0","./config.js?v=13.0.0","./assets/logo-v8.svg","./manifest.webmanifest"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)));self.skipWaiting()});
 self.addEventListener("activate",event=>{event.waitUntil((async()=>{for(const key of await caches.keys())if(key!==CACHE)await caches.delete(key);await self.clients.claim()})())});
 async function networkFirst(request){const cache=await caches.open(CACHE);try{const response=await fetch(request,{cache:"no-store"});if(response.ok)await cache.put(request,response.clone());return response}catch{const cached=await cache.match(request);return cached||cache.match("./index.html")}}

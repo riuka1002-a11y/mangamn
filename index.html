@@ -10,9 +10,8 @@
 <link href="assets/logo.svg" rel="icon" type="image/svg+xml"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="https://cdn.jsdelivr.net" rel="preconnect"/>
-<link href="styles.css?v=11.0.0" rel="stylesheet"/>
-
-</head>
+<link href="styles.css?v=13.0.0" rel="stylesheet"/>
+<meta content="index,follow,max-image-preview:large" name="robots"/><meta content="website" property="og:type"/><meta content="MangaVerse — Монгол манга платформ" property="og:title"/><meta content="Монгол орчуулгатай манга, манхва унших платформ." property="og:description"/><meta content="https://riuka1002-a11y.github.io/mangamn/assets/logo-v8.svg" property="og:image"/><meta content="summary_large_image" name="twitter:card"/><meta content="MangaVerse — Монгол манга платформ" name="twitter:title"/><meta content="Монгол орчуулгатай манга, манхва унших платформ." name="twitter:description"/><link href="https://riuka1002-a11y.github.io/mangamn/" rel="canonical"/></head>
 <body>
 <div class="setup-notice hidden" id="setupNotice" role="alert"></div>
 <header class="site-header">
@@ -20,7 +19,7 @@
 <img alt="MangaVerse" src="assets/logo-v8.svg"/>
 <span>Manga<span>Verse</span></span>
 </a>
-<nav aria-label="Үндсэн цэс" class="main-nav hidden" id="mainNav">
+<button aria-label="Цэс нээх" class="mobile-nav-toggle hidden" id="mobileNavToggle" type="button">☰</button><nav aria-label="Үндсэн цэс" class="main-nav hidden" id="mainNav">
 <button class="nav-link active" data-view="library" type="button">⌂ Нүүр хуудас</button>
 <button class="nav-link" data-view="favorites" type="button">♡ Миний уншлага</button>
 <button class="nav-link" data-view="membership" id="membershipNav" type="button">✦ Plus+ эрх</button>
@@ -54,7 +53,7 @@
 </label>
 <label class="field">
 <span>Нууц үг</span>
-<input autocomplete="current-password" id="password" minlength="8" placeholder="Доод тал нь 8 тэмдэгт" required="" type="password"/>
+<input autocomplete="current-password" id="password" minlength="8" placeholder="Доод тал нь 8 тэмдэгт" required="" type="password"/><button aria-label="Нууц үг харуулах" class="input-inline-action" id="passwordToggle" type="button">Харах</button>
 </label>
 <div class="auth-action-stack">
 <button class="auth-action auth-login" id="authSubmit" type="submit">↪ Нэвтрэх</button>
@@ -63,9 +62,15 @@
 <button class="auth-back hidden" id="loginTab" type="button">← Нэвтрэх хэсэг рүү буцах</button>
 </div>
 <p aria-live="polite" class="form-message" id="authMessage"></p>
-</form>
+<p class="auth-security-note">Таны нууц үг Supabase Auth-аар хамгаалагдана. Админ нууц үгийг харах боломжгүй.</p></form>
 </section>
-</section>
+<section aria-label="Туршилтын манга каталог" class="guest-demo-catalog" id="guestDemoCatalog">
+<div class="guest-demo-head">
+<div><span class="eyebrow">Demo catalog</span><h2>Платформын харагдац</h2></div>
+<span>Өгөгдлийн сан түр холбогдохгүй үед ч харагдана</span>
+</div>
+<div class="manga-grid guest-demo-grid" id="guestDemoGrid"></div>
+</section></section>
 <section class="app-shell hidden" id="appView">
 <section class="view-panel" id="libraryView">
 <section class="library-hero">
@@ -88,7 +93,7 @@
 </div>
 <span class="shelf-count" id="latestCount"></span>
 </div>
-<div class="manga-grid shelf-grid" id="latestGrid"></div>
+<div aria-busy="false" class="manga-grid shelf-grid" id="latestGrid"></div>
 <div class="section-empty hidden" id="latestEmpty">Одоогоор шинэ бүтээл алга.</div>
 </section>
 <section class="shelf-block" id="top10Section">
@@ -99,7 +104,7 @@
 </div>
 <span class="shelf-count">Хадгалсан тоогоор</span>
 </div>
-<div class="manga-grid shelf-grid top-grid" id="top10Grid"></div>
+<div aria-busy="false" class="manga-grid shelf-grid top-grid" id="top10Grid"></div>
 <div class="section-empty hidden" id="top10Empty">Одоогоор эрэмбэлэх бүтээл алга.</div>
 </section>
 <section class="shelf-block" id="completedSection">
@@ -110,7 +115,7 @@
 </div>
 <span class="shelf-count" id="completedCount"></span>
 </div>
-<div class="manga-grid shelf-grid" id="completedGrid"></div>
+<div aria-busy="false" class="manga-grid shelf-grid" id="completedGrid"></div>
 <div class="section-empty hidden" id="completedEmpty">Гарч дууссан бүтээл одоогоор алга.</div>
 </section>
 </div>
@@ -124,7 +129,7 @@
 <span id="libraryCount">0 бүтээл</span>
 </div>
 </div>
-<div class="manga-grid" id="libraryGrid"></div>
+<div aria-busy="false" class="manga-grid" id="libraryGrid"></div>
 <div class="empty-state hidden" id="libraryEmpty">
 <div class="empty-icon">📚</div>
 <h3>Одоогоор нийтлэгдсэн манга алга</h3>
@@ -227,28 +232,77 @@
 </section>
 </section>
 <section class="view-panel hidden" id="adminView">
-<div class="section-heading">
+<div class="section-heading admin-main-heading">
+<div>
+<span class="eyebrow">Нэг админы удирдлага</span>
+<h2>Админ хяналтын самбар</h2>
+<p class="admin-heading-copy">Гишүүнчлэлийн хүсэлт, хэрэглэгч, орлого, баг болон Super Like мэдээллийг нэг дор удирдана.</p>
+</div>
+<button class="btn btn-ghost" data-refresh-admin-all="" type="button">Бүгдийг шинэчлэх</button>
+</div>
+<section aria-label="Админы үзүүлэлт" class="admin-metrics">
+<article class="admin-metric-card"><span>Нийт хэрэглэгч</span><strong id="adminMetricUsers">0</strong><small id="adminMetricNewUsers">Сүүлийн 30 хоног: 0</small></article>
+<article class="admin-metric-card"><span>Идэвхтэй Plus+</span><strong id="adminMetricMembers">0</strong><small id="adminMetricExpiring">7 хоногт дуусах: 0</small></article>
+<article class="admin-metric-card"><span>Гишүүнчлэлийн орлого</span><strong id="adminMetricMembershipRevenue">0₮</strong><small id="adminMetricMembershipRevenue30">30 хоногт: 0₮</small></article>
+<article class="admin-metric-card"><span>Super Like орлого</span><strong id="adminMetricSuperLikeRevenue">0₮</strong><small>Зөвшөөрсөн хүсэлтүүд</small></article>
+<article class="admin-metric-card admin-metric-highlight"><span>Нийт орлого</span><strong id="adminMetricTotalRevenue">0₮</strong><small>Гишүүнчлэл + Super Like</small></article>
+<article class="admin-metric-card"><span>Хүлээгдэж буй</span><strong id="adminMetricPending">0</strong><small>Багц ба Super Like хүсэлт</small></article>
+<article class="admin-metric-card"><span>Контент</span><strong id="adminMetricContent">0</strong><small id="adminMetricChapterCount">0 бүлэг</small></article>
+<article class="admin-metric-card"><span>Орчуулагч</span><strong id="adminMetricTranslators">0</strong><small id="adminMetricTeams">0 баг</small></article>
+</section>
+<section class="admin-subsection admin-users-section">
+<div class="section-heading compact-heading">
+<div>
+<span class="eyebrow">Хэрэглэгчийн удирдлага</span>
+<h2>Бүх хэрэглэгчид</h2>
+</div>
+<div class="admin-toolbar">
+<input class="admin-search" id="adminUserSearch" placeholder="Нэр эсвэл имэйлээр хайх..." type="search"/>
+<select class="admin-filter" id="adminUserStatusFilter">
+<option value="all">Бүх төлөв</option>
+<option value="active">Идэвхтэй</option>
+<option value="suspended">Түр хаасан</option>
+<option value="member">Plus+ эрхтэй</option>
+<option value="translator">Орчуулагч</option>
+</select>
+</div>
+</div>
+<p class="admin-summary">Админ өөрийн эрхийг өөрчлөх боломжгүй. Бусад хэрэглэгчийг түр хаах, идэвхжүүлэх, Plus+ эрх сунгах эсвэл цуцлах боломжтой.</p>
+<div class="admin-user-list" id="adminUserList"></div>
+<div class="section-empty hidden" id="adminUsersEmpty">Хайлттай тохирох хэрэглэгч олдсонгүй.</div>
+</section>
+<section class="admin-subsection">
+<div class="section-heading compact-heading">
 <div>
 <span class="eyebrow">Гараар баталгаажуулах</span>
 <h2>Гишүүнчлэлийн хүсэлтүүд</h2>
 </div>
+<div class="admin-toolbar">
+<select class="admin-filter" id="adminRequestFilter">
+<option value="all">Бүх хүсэлт</option>
+<option value="pending">Шалгаж байгаа</option>
+<option value="approved">Зөвшөөрсөн</option>
+<option value="rejected">Татгалзсан</option>
+</select>
 <button class="btn btn-ghost" data-refresh-admin="" type="button">Шинэчлэх</button>
 </div>
+</div>
 <div class="admin-summary">
-<span>Хүлээгдэж буй хүсэлтийг баримттай нь шалгаад зөвшөөрөх эсвэл татгалзана.</span>
+<span>Баримтыг шалгаад зөвшөөрөхөд сонгосон багцын хугацаа автоматаар нэмэгдэнэ.</span>
 </div>
 <div class="admin-request-list" id="adminRequests"></div>
+</section>
 <section class="admin-subsection">
-<div class="section-heading compact-heading"><div><span class="eyebrow">Багийн удирдлага</span><h2>Орчуулагч багууд</h2></div><button class="btn btn-ghost" data-refresh-teams type="button">Шинэчлэх</button></div>
+<div class="section-heading compact-heading"><div><span class="eyebrow">Багийн удирдлага</span><h2>Орчуулагч багууд</h2></div><button class="btn btn-ghost" data-refresh-teams="" type="button">Шинэчлэх</button></div>
 <div class="admin-team-layout">
 <form class="admin-team-form stack-form" id="adminCreateTeamForm">
-<label class="field"><span>Багийн нэр</span><input id="adminTeamName" maxlength="100" required type="text" placeholder="Жишээ: Moonlight баг"/></label>
-<label class="field"><span>Тусгай код</span><input id="adminTeamCode" maxlength="80" required type="password" placeholder="Багт өгөх нууц код"/></label>
-<label class="field"><span>Гишүүний дээд тоо</span><input id="adminTeamMax" min="1" max="20" required type="number" value="20"/></label>
-<label class="field"><span>Банк</span><input id="adminTeamBank" maxlength="80" required type="text" value="M банк"/></label>
-<label class="field"><span>Данс</span><input id="adminTeamAccount" maxlength="80" required type="text"/></label>
-<label class="field"><span>IBAN</span><input id="adminTeamIban" maxlength="100" required type="text"/></label>
-<label class="field"><span>Данс эзэмшигч</span><input id="adminTeamHolder" maxlength="120" required type="text"/></label>
+<label class="field"><span>Багийн нэр</span><input id="adminTeamName" maxlength="100" placeholder="Жишээ: Moonlight баг" required="" type="text"/></label>
+<label class="field"><span>Тусгай код</span><input id="adminTeamCode" maxlength="80" placeholder="Багт өгөх нууц код" required="" type="password"/></label>
+<label class="field"><span>Гишүүний дээд тоо</span><input id="adminTeamMax" max="20" min="1" required="" type="number" value="20"/></label>
+<label class="field"><span>Банк</span><input id="adminTeamBank" maxlength="80" required="" type="text" value="M банк"/></label>
+<label class="field"><span>Данс</span><input id="adminTeamAccount" maxlength="80" required="" type="text"/></label>
+<label class="field"><span>IBAN</span><input id="adminTeamIban" maxlength="100" required="" type="text"/></label>
+<label class="field"><span>Данс эзэмшигч</span><input id="adminTeamHolder" maxlength="120" required="" type="text"/></label>
 <button class="btn btn-primary btn-block" type="submit">Баг үүсгэх</button><p class="form-message" id="adminTeamMessage"></p>
 </form>
 <div class="admin-team-list" id="adminTeamList"></div>
@@ -260,7 +314,7 @@
 <span class="eyebrow">Багт илгээсэн дэмжлэг</span>
 <h2>Super Like хүсэлтүүд</h2>
 </div>
-<button class="btn btn-ghost" data-refresh-superlikes type="button">Шинэчлэх</button>
+<button class="btn btn-ghost" data-refresh-superlikes="" type="button">Шинэчлэх</button>
 </div>
 <p class="admin-summary">1 Super Like = 1,000₮. Баримтыг шалгаж зөвшөөрсний дараа баг болон бүлгийн тоонд нэмэгдэнэ.</p>
 <div class="admin-request-list" id="adminSuperLikeRequests"></div>
@@ -277,7 +331,14 @@
 <button class="btn btn-primary" id="openCreateMangaBtn" type="button">+ Шинэ манга</button>
 </div>
 </div>
-<div class="team-studio-summary" id="teamStudioSummary"></div>
+<div class="team-studio-summary" id="teamStudioSummary"></div><section aria-label="Орчуулагчийн статистик" class="translator-stat-grid" id="translatorStatGrid">
+<article><span>Бүтээл</span><strong id="translatorMetricMangas">0</strong><small>Танай багийн манга</small></article>
+<article><span>Бүлэг</span><strong id="translatorMetricChapters">0</strong><small>Нийт оруулсан</small></article>
+<article><span>Уншилт</span><strong id="translatorMetricReads">0</strong><small>Уншсан бүртгэл</small></article>
+<article><span>Хадгалалт</span><strong id="translatorMetricFavorites">0</strong><small>Уншигчдын хадгалсан</small></article>
+<article><span>Сэтгэгдэл</span><strong id="translatorMetricComments">0</strong><small>Бүлгүүд дээр</small></article>
+<article><span>Super Like</span><strong id="translatorMetricSuperLikes">0</strong><small>Баталгаажсан</small></article>
+</section>
 <div class="studio-grid" id="studioGrid"></div>
 <div class="empty-state hidden" id="studioEmpty">
 <div class="empty-icon">✦</div>
@@ -325,7 +386,15 @@
 </form>
 </div>
 </article>
+<article class="profile-gamification-card" id="gamificationCard">
+<div class="gamification-head">
+<div><span class="eyebrow">Reading Rank</span><h2 id="gamificationRank">Шинэков</h2></div>
+<strong id="gamificationXp">0 XP</strong>
 </div>
+<div class="xp-track"><span id="gamificationXpBar"></span></div>
+<p id="gamificationNextRank">Дараагийн цол хүртэл 100 XP.</p>
+<div class="daily-quest-list" id="dailyQuestList"></div>
+</article></div>
 </section></section>
 </main><footer class="site-footer hidden" id="siteFooter">
 <div class="footer-inner">
@@ -344,7 +413,7 @@
 <strong>БУСАД</strong>
 <button data-view-target="profile" type="button">Миний булан</button>
 <span>Нууцлалын бодлого</span>
-</div>
+<button id="openDmcaBtn" type="button">DMCA / эрхийн гомдол</button><a href="architecture.html" rel="noopener" target="_blank">Архитектур</a></div>
 </div>
 <div class="footer-bottom">© 2026 MangaVerse.</div>
 </footer>
@@ -362,7 +431,16 @@
 <form autocomplete="off" class="stack-form" id="createMangaForm">
 <label class="field"><span>Манганы нэр</span><input autocomplete="off" id="mangaTitle" maxlength="120" required=""/></label>
 <label class="field"><span>Тайлбар</span><textarea id="mangaDescription" maxlength="1200" required="" rows="5"></textarea></label>
-<label class="field"><span>Төрөл</span><input id="mangaGenres" maxlength="180" placeholder="Romance, Fantasy, Drama"/></label>
+<label class="field"><span>Төрөл</span><input id="mangaGenres" maxlength="180" placeholder="Romance, Fantasy, Drama"/></label><div aria-label="Төрөл сонгох" class="genre-picker" id="genrePicker">
+<button data-genre="Romance" type="button">Romance</button>
+<button data-genre="Fantasy" type="button">Fantasy</button>
+<button data-genre="Drama" type="button">Drama</button>
+<button data-genre="Action" type="button">Action</button>
+<button data-genre="Comedy" type="button">Comedy</button>
+<button data-genre="School Life" type="button">School Life</button>
+<button data-genre="Historical" type="button">Historical</button>
+<button data-genre="Mystery" type="button">Mystery</button>
+</div>
 <label class="field">
 <span>Цувралын төлөв</span>
 <select id="mangaSeriesStatus">
@@ -371,7 +449,10 @@
 <option value="hiatus">Түр завсарласан</option>
 </select>
 </label>
-<label class="field"><span>Нүүр зураг</span><input accept="image/jpeg,image/png,image/webp" id="mangaCover" required="" type="file"/></label>
+<label class="field"><span>Нүүр зураг</span><input accept="image/jpeg,image/png,image/webp" id="mangaCover" required="" type="file"/></label><div class="cover-preview-card" id="mangaCoverPreview">
+<div class="cover-preview-placeholder">Нүүр зургийн preview</div>
+<img alt="Нүүр зургийн preview" class="hidden" id="mangaCoverPreviewImage"/>
+</div>
 <label class="toggle-row"><input id="mangaFeatured" type="checkbox"/> Онцлох хэсэгт харуулах</label>
 <label class="toggle-row"><input id="mangaPublished" type="checkbox"/> Шууд нийтлэх</label>
 <button class="btn btn-primary btn-block" type="submit">Манга үүсгэх</button>
@@ -386,10 +467,18 @@
 </div>
 <p class="form-context" id="createChapterTeamLabel"></p>
 <form autocomplete="off" class="stack-form" id="quickCreateChapterForm">
-<label class="field"><span>Манга сонгох</span><select id="quickChapterManga" required></select></label>
-<label class="field"><span>Бүлгийн дугаар</span><input id="quickChapterNumber" min="0" placeholder="Жишээ: 12 эсвэл 12.5" required step="0.1" type="number"/></label>
+<label class="field"><span>Манга сонгох</span><select id="quickChapterManga" required=""></select></label>
+<label class="field"><span>Бүлгийн дугаар</span><input id="quickChapterNumber" min="0" placeholder="Жишээ: 12 эсвэл 12.5" required="" step="0.1" type="number"/></label>
 <label class="field"><span>Бүлгийн нэр</span><input autocomplete="off" id="quickChapterTitle" maxlength="160" placeholder="Жишээ: Шинэ эхлэл"/></label>
-<label class="field"><span>Хуудасны зургууд</span><input accept="image/jpeg,image/png,image/webp" id="quickChapterPages" multiple required type="file"/></label>
+<label class="field"><span>Хуудасны зургууд</span><input accept="image/jpeg,image/png,image/webp" class="sr-only" id="quickChapterPages" multiple="" required="" type="file"/></label>
+<div aria-label="Бүлгийн зургууд сонгох" class="chapter-dropzone" id="chapterDropzone" role="button" tabindex="0">
+<strong>Зургаа энд чирж оруулна уу</strong>
+<span>эсвэл дарж олон зураг сонгоно</span>
+<small>JPEG, PNG, WEBP · хамгийн ихдээ 250 зураг</small>
+</div>
+<div class="chapter-file-summary" id="chapterFileSummary">Зураг сонгоогүй</div>
+<div aria-live="polite" class="chapter-sort-list" id="chapterSortList"></div>
+
 <label class="toggle-row"><input id="quickChapterPublished" type="checkbox"/> Шууд нийтлэх</label>
 <button class="btn btn-primary btn-block" type="submit">Бүлэг оруулах</button>
 <p aria-live="polite" class="form-message" id="quickChapterMessage"></p>
@@ -420,34 +509,33 @@
 <div class="super-like-target" id="superLikeTarget"></div>
 <div class="bank-card compact-bank-card" id="superLikeBank"></div>
 <form class="stack-form" id="superLikeForm">
-<label class="field"><span>Super Like-ийн тоо</span><input id="superLikeQuantity" min="1" max="9999" required type="number" value="1"/></label>
+<label class="field"><span>Super Like-ийн тоо</span><input id="superLikeQuantity" max="9999" min="1" required="" type="number" value="1"/></label>
 <div class="super-like-total">Нийт төлөх: <strong id="superLikeTotal">1,000₮</strong></div>
-<label class="field"><span>Шилжүүлэгчийн нэр</span><input id="superLikeSenderName" maxlength="120" required type="text"/></label>
-<label class="field"><span>Гүйлгээний утга</span><input id="superLikeReference" maxlength="180" required type="text"/></label>
-<label class="field"><span>Шилжүүлсэн огноо</span><input id="superLikeTransferDate" required type="date"/></label>
-<label class="field"><span>Төлбөрийн баримт</span><input accept="image/jpeg,image/png,image/webp,application/pdf" id="superLikeReceipt" required type="file"/></label>
+<label class="field"><span>Шилжүүлэгчийн нэр</span><input id="superLikeSenderName" maxlength="120" required="" type="text"/></label>
+<label class="field"><span>Гүйлгээний утга</span><input id="superLikeReference" maxlength="180" required="" type="text"/></label>
+<label class="field"><span>Шилжүүлсэн огноо</span><input id="superLikeTransferDate" required="" type="date"/></label>
+<label class="field"><span>Төлбөрийн баримт</span><input accept="image/jpeg,image/png,image/webp,application/pdf" id="superLikeReceipt" required="" type="file"/></label>
 <button class="btn btn-primary btn-block" type="submit">Хүсэлт илгээх</button>
 <p aria-live="polite" class="form-message" id="superLikeMessage"></p>
 </form>
 </dialog>
-
 <dialog class="modal receipt-preview-modal" id="receiptPreviewDialog">
-  <button aria-label="Хаах" class="modal-close" data-close-dialog="receiptPreviewDialog">×</button>
-  <div class="receipt-preview-head">
-    <div>
-      <span class="eyebrow">Админ шалгалт</span>
-      <h2 id="receiptPreviewTitle">Төлбөрийн баримт</h2>
-    </div>
-    <div class="receipt-preview-actions">
-      <a class="btn btn-ghost hidden" id="receiptPreviewOpen" target="_blank" rel="noopener noreferrer">Шинэ цонхонд нээх</a>
-      <a class="btn btn-primary hidden" id="receiptPreviewDownload" download>Татах</a>
-    </div>
-  </div>
-  <div class="receipt-preview-loading" id="receiptPreviewLoading">Баримтыг ачаалж байна...</div>
-  <iframe class="receipt-preview-frame hidden" id="receiptPreviewFrame" title="Төлбөрийн баримт"></iframe>
+<button aria-label="Хаах" class="modal-close" data-close-dialog="receiptPreviewDialog">×</button>
+<div class="receipt-preview-head">
+<div>
+<span class="eyebrow">Админ шалгалт</span>
+<h2 id="receiptPreviewTitle">Төлбөрийн баримт</h2>
+</div>
+<div class="receipt-preview-actions">
+<a class="btn btn-ghost hidden" id="receiptPreviewOpen" rel="noopener noreferrer" target="_blank">Шинэ цонхонд нээх</a>
+<a class="btn btn-primary hidden" download="" id="receiptPreviewDownload">Татах</a>
+</div>
+</div>
+<div class="receipt-preview-loading" id="receiptPreviewLoading">Баримтыг ачаалж байна...</div>
+<iframe class="receipt-preview-frame hidden" id="receiptPreviewFrame" title="Төлбөрийн баримт"></iframe>
 </dialog>
 <section aria-label="Манга уншигч" class="reader-overlay hidden" id="readerOverlay">
-<div class="reader-toolbar">
+<div aria-hidden="true" class="reader-watermark" id="readerWatermark"></div><div class="reader-protection-notice hidden" id="readerProtectionNotice">Контент хамгаалалт идэвхтэй. Зөвшөөрөлгүй хуулбарлахыг хориглоно.</div><div class="reader-toolbar">
 <button class="btn btn-ghost" id="closeReaderBtn">← Буцах</button>
 <div class="reader-title-wrap">
 <strong id="readerMangaTitle"></strong>
@@ -457,7 +545,11 @@
 <button class="btn btn-ghost" id="prevChapterBtn">Өмнөх</button>
 <button class="btn btn-primary" id="nextChapterBtn">Дараах</button>
 </div>
-</div>
+<div class="reader-display-controls">
+<button class="btn btn-ghost" id="readerThemeBtn" type="button">☾ Dark</button>
+<label class="reader-width-control">Өргөн <input id="readerWidthRange" max="100" min="55" step="5" type="range" value="100"/></label>
+<button class="btn btn-ghost" id="readerFullscreenBtn" type="button">⛶</button>
+</div></div>
 <div class="reader-pages" id="readerPages"></div>
 <section class="chapter-community" id="chapterCommunity">
 <div class="community-head">
@@ -471,7 +563,7 @@
 </div>
 </div>
 <form class="comment-form" id="chapterCommentForm">
-<textarea id="chapterCommentBody" maxlength="500" placeholder="Энэ бүлгийн тухай сэтгэгдлээ бичнэ үү..." required rows="3"></textarea>
+<textarea id="chapterCommentBody" maxlength="500" placeholder="Энэ бүлгийн тухай сэтгэгдлээ бичнэ үү..." required="" rows="3"></textarea>
 <div><span class="comment-limit">500 хүртэл тэмдэгт</span><button class="btn btn-primary" type="submit">Сэтгэгдэл үлдээх</button></div>
 <p class="form-message" id="chapterCommentMessage"></p>
 </form>
@@ -481,7 +573,21 @@
 </section>
 <div aria-live="polite" class="toast hidden" id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=10.2.0"></script>
-<script defer="" src="app.js?v=11.0.0"></script>
+<script src="config.js?v=13.0.0"></script>
+<script defer="" src="app.js?v=13.0.0"></script><script defer="True" src="v13.js?v=13.0.0"></script><dialog class="modal form-modal" id="adminRejectDialog">
+<button aria-label="Хаах" class="modal-close" data-close-dialog="adminRejectDialog">×</button>
+<div class="modal-title"><span class="eyebrow">Хүсэлт татгалзах</span><h2>Татгалзсан шалтгаан</h2></div>
+<form class="stack-form" id="adminRejectForm">
+<label class="field"><span>Шалтгаан</span><textarea id="adminRejectReason" maxlength="500" placeholder="Жишээ: Баримт бүдэг, дүн тохирохгүй байна." required="" rows="4"></textarea></label>
+<button class="btn btn-danger btn-block" type="submit">Татгалзах</button>
+<p class="form-message" id="adminRejectMessage"></p>
+</form>
+</dialog><dialog class="modal legal-modal" id="dmcaDialog">
+<button aria-label="Хаах" class="modal-close" data-close-dialog="dmcaDialog">×</button>
+<div class="modal-title"><span class="eyebrow">Copyright &amp; DMCA</span><h2>Контент устгуулах хүсэлт</h2></div>
+<p>Зохиогчийн эрх эзэмшигч эсвэл эрх бүхий төлөөлөгч бол тухайн бүтээлийн нэр, зөрчилтэй URL, эрхээ нотлох мэдээлэл болон холбоо барих хаягаа илгээнэ үү.</p>
+<div class="legal-contact"><strong>Холбоо барих:</strong><a href="mailto:riuka1002@gmail.com?subject=MangaVerse%20DMCA%20Request">riuka1002@gmail.com</a></div>
+<p class="legal-note">Хуурамч мэдээлэл өгөхгүй байхыг анхаарна уу. Хүсэлтийг шалгасны дараа шаардлагатай контентыг түр нуух эсвэл устгана.</p>
+</dialog>
 </body>
 </html>

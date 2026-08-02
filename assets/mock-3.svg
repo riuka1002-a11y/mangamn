@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5a2f24"/><stop offset="1" stop-color="#0f0d17"/></linearGradient></defs>
+<rect width="600" height="900" fill="url(#g)"/><circle cx="430" cy="250" r="170" fill="#ffbd8f" opacity=".18"/><circle cx="165" cy="560" r="220" fill="#ffbd8f" opacity=".1"/><path d="M90 640 Q300 360 510 640" fill="none" stroke="#ffbd8f" stroke-width="18" opacity=".55"/>
+<text x="50" y="720" fill="#fff" font-size="42" font-family="Arial, sans-serif" font-weight="700">ЭРГЭН ИРСЭН ГҮНЖ</text><text x="50" y="775" fill="#ffbd8f" font-size="24" font-family="Arial, sans-serif">MangaVerse Original</text>
+</svg>
