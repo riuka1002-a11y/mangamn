@@ -27,6 +27,8 @@ create table if not exists public.mangas(
   cover_path text,
   genres text[] not null default '{}',
   status text not null default 'draft' check(status in('draft','published')),
+  series_status text not null default 'ongoing' check(series_status in('ongoing','completed','hiatus')),
+  is_featured boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -62,7 +64,29 @@ create table if not exists public.reading_progress(
   updated_at timestamptz not null default now(),
   primary key(user_id,chapter_id)
 );
+
+-- Existing project upgrade: safe to run repeatedly.
+alter table public.mangas
+  add column if not exists series_status text not null default 'ongoing';
+
+alter table public.mangas
+  add column if not exists is_featured boolean not null default false;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname='mangas_series_status_check'
+      and conrelid='public.mangas'::regclass
+  ) then
+    alter table public.mangas
+      add constraint mangas_series_status_check
+      check(series_status in('ongoing','completed','hiatus'));
+  end if;
+end $$;
 create index if not exists mangas_status_created_idx on public.mangas(status,created_at desc);
+create index if not exists mangas_status_updated_idx on public.mangas(status,updated_at desc);
+create index if not exists mangas_series_status_idx on public.mangas(series_status);
 create index if not exists mangas_translator_idx on public.mangas(translator_id);
 create index if not exists chapters_manga_number_idx on public.chapters(manga_id,chapter_number);
 create index if not exists pages_chapter_order_idx on public.chapter_pages(chapter_id,page_order);
@@ -91,6 +115,81 @@ begin
 end;$$;
 revoke all on function public.claim_translator_role(text) from public;
 grant execute on function public.claim_translator_role(text) to authenticated;
+
+create or replace function public.touch_parent_manga()
+returns trigger
+language plpgsql
+security definer
+set search_path=public
+as $$
+declare parent_id uuid;
+begin
+  parent_id := case when tg_op='DELETE' then old.manga_id else new.manga_id end;
+  update public.mangas set updated_at=now() where id=parent_id;
+  if tg_op='DELETE' then return old; end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists chapters_touch_parent_manga on public.chapters;
+create trigger chapters_touch_parent_manga
+after insert or update or delete on public.chapters
+for each row execute procedure public.touch_parent_manga();
+
+create or replace function public.get_home_sections()
+returns jsonb
+language sql
+security definer
+stable
+set search_path=public
+as $$
+with base as (
+  select
+    m.id,
+    m.title,
+    m.slug,
+    m.description,
+    m.cover_url,
+    m.genres,
+    m.status,
+    m.series_status,
+    m.is_featured,
+    m.created_at,
+    m.updated_at,
+    count(distinct f.user_id)::integer as favorite_count,
+    count(distinct c.id) filter (where c.published=true)::integer as chapter_count,
+    max(c.chapter_number) filter (where c.published=true) as latest_chapter
+  from public.mangas m
+  left join public.favorites f on f.manga_id=m.id
+  left join public.chapters c on c.manga_id=m.id
+  where m.status='published'
+  group by m.id
+),
+latest_rows as (
+  select * from base
+  order by is_featured desc, updated_at desc, created_at desc
+  limit 12
+),
+top_rows as (
+  select * from base
+  order by favorite_count desc, chapter_count desc, updated_at desc
+  limit 10
+),
+completed_rows as (
+  select * from base
+  where series_status='completed'
+  order by updated_at desc, created_at desc
+  limit 12
+)
+select jsonb_build_object(
+  'latest', coalesce((select jsonb_agg(to_jsonb(x) order by x.is_featured desc,x.updated_at desc) from latest_rows x),'[]'::jsonb),
+  'top10', coalesce((select jsonb_agg(to_jsonb(x) order by x.favorite_count desc,x.chapter_count desc,x.updated_at desc) from top_rows x),'[]'::jsonb),
+  'completed', coalesce((select jsonb_agg(to_jsonb(x) order by x.updated_at desc) from completed_rows x),'[]'::jsonb)
+);
+$$;
+
+revoke all on function public.get_home_sections() from public;
+grant execute on function public.get_home_sections() to authenticated;
 
 alter table public.profiles enable row level security;
 alter table public.translator_invites enable row level security;
