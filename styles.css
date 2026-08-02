@@ -284,3 +284,50 @@ body.guest-mode .site-header,body.guest-mode .site-footer{display:none!important
 .password-modal{width:min(430px,calc(100% - 28px))}
 @media(max-width:850px){.site-header{grid-template-columns:auto 1fr auto}.main-nav{position:fixed;bottom:12px;left:50%;z-index:60;width:min(560px,calc(100% - 20px));margin:0;padding:6px;border:1px solid var(--v8-line);border-radius:14px;background:rgba(17,13,25,.96);transform:translateX(-50%);overflow:auto;justify-content:flex-start}.nav-link{white-space:nowrap}.site-footer{padding-bottom:78px}.footer-inner{grid-template-columns:1fr 1fr;gap:34px}.footer-brand{grid-column:1/-1}.profile-membership-card{grid-template-columns:auto 1fr}.profile-membership-button{grid-column:1/-1}}
 @media(max-width:620px){.site-header{padding-inline:12px}.brand>span{display:none}.app-shell{width:min(100% - 20px,1160px)}.auth-screen{padding:18px 12px}.auth-card{padding:22px 18px}.profile-cover{height:92px}.profile-main{padding-inline:17px}.profile-large-avatar{left:17px}.profile-logout{right:17px}.profile-stats>div{padding:17px 8px}.profile-stats span{font-size:10px}.profile-membership-card{padding:18px}.footer-inner{grid-template-columns:1fr;gap:28px}.footer-brand{grid-column:auto}.library-hero{padding:20px}}
+
+
+/* v9 — controlled translator team access */
+.profile-team-card{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:start;
+  gap:17px;
+  margin-top:18px;
+  padding:24px;
+  border:1px solid var(--v8-line);
+  border-radius:20px;
+  background:var(--v8-panel);
+}
+.profile-team-icon{
+  display:grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  background:rgba(54,211,153,.14);
+  color:#77e8bb;
+  font-size:19px;
+}
+.profile-team-copy h2{margin:0 0 8px;font-size:19px}
+.profile-team-copy>p{margin:0 0 4px;color:#ddd}
+.profile-team-copy>small{display:block;color:#7f7889;line-height:1.6}
+.team-join-form{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  margin-top:18px;
+}
+.team-join-form input{
+  min-height:44px;
+  padding:0 13px;
+  border:1px solid #3c3548;
+  border-radius:10px;
+  outline:none;
+  background:#141019;
+  color:#fff;
+}
+.team-join-form input:focus{border-color:#9b2aff;box-shadow:0 0 0 3px rgba(155,42,255,.14)}
+.team-join-form .form-message{grid-column:1/-1;margin:0}
+.profile-team-card.active{border-color:rgba(54,211,153,.32);background:linear-gradient(145deg,rgba(54,211,153,.08),var(--v8-panel))}
+.profile-team-card.active .team-join-form{display:none}
+@media(max-width:620px){.team-join-form{grid-template-columns:1fr}.team-join-form .btn{width:100%}}

@@ -10,7 +10,7 @@
 <link href="assets/logo.svg" rel="icon" type="image/svg+xml"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="https://cdn.jsdelivr.net" rel="preconnect"/>
-<link href="styles.css?v=8.0.0" rel="stylesheet"/>
+<link href="styles.css?v=9.0.0" rel="stylesheet"/>
 
 </head>
 <body>
@@ -42,22 +42,11 @@
 <h1 class="auth-brand-name">MangaVerse</h1>
 <h2 id="authTitle">Тавтай морил!</h2>
 <p id="authSubtitle">Та бүртгэлтэй имэйл болон нууц үгээрээ нэвтэрнэ үү.</p>
-<p class="auth-mode-hint" id="authModeHint">Та бүртгүүлсний дараа манга унших боломжтой.</p>
+<p class="auth-mode-hint" id="authModeHint">Шинэ бүртгэл бүр уншигчийн эрхээр үүснэ. Орчуулагчийн эрхийг багийн кодоор тусад нь нээнэ.</p>
 <form id="authForm" novalidate="">
 <label class="field hidden" id="nameField">
 <span>Нэр</span>
 <input autocomplete="name" id="displayName" maxlength="60" placeholder="Таны нэр" type="text"/>
-</label>
-<div class="field hidden" id="roleField">
-<span>Бүртгэлийн төрөл</span>
-<div class="role-options">
-<label><input checked="" name="accountRole" type="radio" value="reader"/> Уншигч</label>
-<label><input name="accountRole" type="radio" value="translator"/> Орчуулагч баг</label>
-</div>
-</div>
-<label class="field hidden" id="inviteField">
-<span>Орчуулагчийн урилгын код</span>
-<input autocomplete="off" id="inviteCode" maxlength="80" placeholder="Жишээ: TEAM-2026" type="text"/>
 </label>
 <label class="field">
 <span>И-мэйл хаяг</span>
@@ -182,11 +171,11 @@
 <h3>M банк</h3>
 <div class="bank-row">
 <div><span>Дансны дугаар</span><strong>8010 28 4219</strong></div>
-<button class="copy-btn" data-copy-text="5700668523" type="button">Хуулах</button>
+<button class="copy-btn" data-copy-text="8010284219" type="button">Хуулах</button>
 </div>
 <div class="bank-row">
 <div><span>IBAN</span><strong>MN1000 3900 8010 28 4219</strong></div>
-<button class="copy-btn" data-copy-text="MN780005005700668523" type="button">Хуулах</button>
+<button class="copy-btn" data-copy-text="MN100039008010284219" type="button">Хуулах</button>
 </div>
 <div class="bank-row">
 <div><span>Данс эзэмшигч</span><strong>Ариун-Эрдэнэ</strong></div>
@@ -291,6 +280,19 @@
 </div>
 <button class="btn btn-primary profile-membership-button" data-view-target="membership" type="button">✦ Plus+ эрх авах</button>
 </article>
+<article class="profile-team-card" id="translatorTeamCard">
+<div class="profile-team-icon">♜</div>
+<div class="profile-team-copy">
+<h2>Орчуулагч багийн эрх</h2>
+<p id="translatorTeamStatus">Зөвхөн манайхаас багийн код авсан хэрэглэгч орчуулагчийн эрх нээнэ.</p>
+<small id="translatorTeamMeta">Нэг багийн кодыг 20 хүртэл тусдаа хэрэглэгч нэг удаа ашиглаж болно.</small>
+<form class="team-join-form" id="translatorTeamJoinForm">
+<input autocomplete="off" id="translatorTeamCode" maxlength="80" placeholder="Багийн кодоо оруулна уу" type="password"/>
+<button class="btn btn-primary" type="submit">Кодоор эрх нээх</button>
+<p aria-live="polite" class="form-message" id="translatorTeamMessage"></p>
+</form>
+</div>
+</article>
 </div>
 </section></section>
 </main><footer class="site-footer hidden" id="siteFooter">
@@ -376,6 +378,6 @@
 <div aria-live="polite" class="toast hidden" id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=8.0.0"></script>
-<script defer="" src="app.js?v=8.0.0"></script>
+<script defer="" src="app.js?v=9.0.0"></script>
 </body>
 </html>
