@@ -94,22 +94,73 @@
 
     <section id="appView" class="app-shell hidden">
       <section id="libraryView" class="view-panel">
-        <div class="section-heading">
+        <section class="library-hero">
           <div>
-            <span class="eyebrow">Шинэ бүтээлүүд</span>
-            <h2>Манга номын сан</h2>
+            <span class="eyebrow">Монгол манга платформ</span>
+            <h1>Дуртай бүтээлээ<br /><span>нэг дор уншаарай.</span></h1>
+            <p>Шинээр нэмэгдсэн, хамгийн их хадгалсан болон гарч дууссан бүтээлүүдийг тусгай хэсгээр үзнэ.</p>
           </div>
-          <label class="search-box">
+          <label class="search-box hero-search">
             <span class="sr-only">Манга хайх</span>
-            <input id="searchInput" type="search" placeholder="Нэр, төрөл хайх..." />
+            <input id="searchInput" type="search" placeholder="Нэр, төрөл, тайлбараар хайх..." />
           </label>
+        </section>
+
+        <div class="home-sections">
+          <section id="latestSection" class="shelf-block">
+            <div class="shelf-head">
+              <div>
+                <span class="eyebrow">Сүүлд орсон</span>
+                <h2>Шинээр нэмэгдсэн</h2>
+              </div>
+              <span id="latestCount" class="shelf-count"></span>
+            </div>
+            <div id="latestGrid" class="manga-grid shelf-grid"></div>
+            <div id="latestEmpty" class="section-empty hidden">Одоогоор шинэ бүтээл алга.</div>
+          </section>
+
+          <section id="top10Section" class="shelf-block">
+            <div class="shelf-head">
+              <div>
+                <span class="eyebrow">Уншигчдын сонголт</span>
+                <h2>Top 10</h2>
+              </div>
+              <span class="shelf-count">Хадгалсан тоогоор</span>
+            </div>
+            <div id="top10Grid" class="manga-grid shelf-grid top-grid"></div>
+            <div id="top10Empty" class="section-empty hidden">Одоогоор эрэмбэлэх бүтээл алга.</div>
+          </section>
+
+          <section id="completedSection" class="shelf-block">
+            <div class="shelf-head">
+              <div>
+                <span class="eyebrow">Бүтэн унших</span>
+                <h2>Гарч дууссан</h2>
+              </div>
+              <span id="completedCount" class="shelf-count"></span>
+            </div>
+            <div id="completedGrid" class="manga-grid shelf-grid"></div>
+            <div id="completedEmpty" class="section-empty hidden">Гарч дууссан бүтээл одоогоор алга.</div>
+          </section>
         </div>
-        <div id="libraryGrid" class="manga-grid"></div>
-        <div id="libraryEmpty" class="empty-state hidden">
-          <div class="empty-icon">📚</div>
-          <h3>Одоогоор нийтлэгдсэн манга алга</h3>
-          <p>Орчуулагч баг эхний бүтээлээ нийтэлсний дараа энд харагдана.</p>
-        </div>
+
+        <section class="all-library">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Бүх бүтээл</span>
+              <h2>Манга номын сан</h2>
+            </div>
+            <div class="library-summary">
+              <span id="libraryCount">0 бүтээл</span>
+            </div>
+          </div>
+          <div id="libraryGrid" class="manga-grid"></div>
+          <div id="libraryEmpty" class="empty-state hidden">
+            <div class="empty-icon">📚</div>
+            <h3>Одоогоор нийтлэгдсэн манга алга</h3>
+            <p>Орчуулагч баг эхний бүтээлээ нийтэлсний дараа энд харагдана.</p>
+          </div>
+        </section>
       </section>
 
       <section id="favoritesView" class="view-panel hidden">
@@ -160,7 +211,16 @@
       <label class="field"><span>Манганы нэр</span><input id="mangaTitle" required maxlength="120" /></label>
       <label class="field"><span>Тайлбар</span><textarea id="mangaDescription" required maxlength="1200" rows="5"></textarea></label>
       <label class="field"><span>Төрөл</span><input id="mangaGenres" maxlength="180" placeholder="Romance, Fantasy, Drama" /></label>
+      <label class="field">
+        <span>Цувралын төлөв</span>
+        <select id="mangaSeriesStatus">
+          <option value="ongoing">Үргэлжилж буй</option>
+          <option value="completed">Гарч дууссан</option>
+          <option value="hiatus">Түр завсарласан</option>
+        </select>
+      </label>
       <label class="field"><span>Нүүр зураг</span><input id="mangaCover" type="file" accept="image/jpeg,image/png,image/webp" required /></label>
+      <label class="toggle-row"><input id="mangaFeatured" type="checkbox" /> Онцлох хэсэгт харуулах</label>
       <label class="toggle-row"><input id="mangaPublished" type="checkbox" /> Шууд нийтлэх</label>
       <button class="btn btn-primary btn-block" type="submit">Манга үүсгэх</button>
       <p id="createMangaMessage" class="form-message" aria-live="polite"></p>
