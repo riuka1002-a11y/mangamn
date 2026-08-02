@@ -10,7 +10,7 @@
 <link href="assets/logo.svg" rel="icon" type="image/svg+xml"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="https://cdn.jsdelivr.net" rel="preconnect"/>
-<link href="styles.css?v=10.0.0" rel="stylesheet"/>
+<link href="styles.css?v=10.3.1" rel="stylesheet"/>
 
 </head>
 <body>
@@ -430,6 +430,22 @@
 <p aria-live="polite" class="form-message" id="superLikeMessage"></p>
 </form>
 </dialog>
+
+<dialog class="modal receipt-preview-modal" id="receiptPreviewDialog">
+  <button aria-label="Хаах" class="modal-close" data-close-dialog="receiptPreviewDialog">×</button>
+  <div class="receipt-preview-head">
+    <div>
+      <span class="eyebrow">Админ шалгалт</span>
+      <h2 id="receiptPreviewTitle">Төлбөрийн баримт</h2>
+    </div>
+    <div class="receipt-preview-actions">
+      <a class="btn btn-ghost hidden" id="receiptPreviewOpen" target="_blank" rel="noopener noreferrer">Шинэ цонхонд нээх</a>
+      <a class="btn btn-primary hidden" id="receiptPreviewDownload" download>Татах</a>
+    </div>
+  </div>
+  <div class="receipt-preview-loading" id="receiptPreviewLoading">Баримтыг ачаалж байна...</div>
+  <iframe class="receipt-preview-frame hidden" id="receiptPreviewFrame" title="Төлбөрийн баримт"></iframe>
+</dialog>
 <section aria-label="Манга уншигч" class="reader-overlay hidden" id="readerOverlay">
 <div class="reader-toolbar">
 <button class="btn btn-ghost" id="closeReaderBtn">← Буцах</button>
@@ -465,7 +481,7 @@
 </section>
 <div aria-live="polite" class="toast hidden" id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=10.0.0"></script>
-<script defer="" src="app.js?v=10.0.0"></script>
+<script src="config.js?v=10.2.0"></script>
+<script defer="" src="app.js?v=10.3.1"></script>
 </body>
 </html>

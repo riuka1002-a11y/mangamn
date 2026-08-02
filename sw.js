@@ -1,5 +1,5 @@
-const CACHE = "mangaverse-v10";
-const CORE = ["./", "./index.html", "./styles.css?v=10.0.0", "./app.js?v=10.0.0", "./config.js?v=10.0.0", "./assets/logo-v8.svg", "./manifest.webmanifest"];
+const CACHE = "mangaverse-v10-3-1";
+const CORE = ["./", "./index.html", "./styles.css?v=10.3.1", "./app.js?v=10.3.1", "./config.js?v=10.3.1", "./assets/logo-v8.svg", "./manifest.webmanifest"];
 self.addEventListener("install", event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE))); self.skipWaiting(); });
 self.addEventListener("activate", event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))); self.clients.claim(); });
 self.addEventListener("fetch", event => {
