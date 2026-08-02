@@ -9,7 +9,11 @@
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=6.0.0" />
+  <style id="auth-critical-css">
+    .oauth-btn svg.oauth-icon{width:20px!important;height:20px!important;min-width:20px!important;max-width:20px!important;display:block!important;flex:0 0 20px!important}
+    .auth-symbol svg{width:26px!important;height:26px!important;display:block!important}
+  </style>
 </head>
 <body>
   <div id="setupNotice" class="setup-notice hidden" role="alert"></div>
@@ -80,7 +84,7 @@
 
           <div class="oauth-stack" aria-label="Сошиал бүртгэлээр үргэлжлүүлэх">
             <button class="oauth-btn" type="button" data-oauth-provider="google">
-              <svg class="oauth-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <svg class="oauth-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.23-.2-1.77H12v3.4h5.52a4.74 4.74 0 0 1-2.05 3.02l-.02.11 2.98 2.31.21.02c1.94-1.79 2.96-4.43 2.96-7.09Z"/>
                 <path fill="#34A853" d="M12 22c2.69 0 4.94-.89 6.59-2.42l-3.17-2.45c-.85.57-1.99.97-3.42.97-2.59 0-4.79-1.75-5.58-4.17l-.1.01-3.1 2.4-.03.1A9.96 9.96 0 0 0 12 22Z"/>
                 <path fill="#FBBC05" d="M6.42 13.93A6 6 0 0 1 6.1 12c0-.67.12-1.32.31-1.93v-.12L3.28 7.52l-.1.05A10 10 0 0 0 2 12c0 1.59.38 3.09 1.18 4.43l3.24-2.5Z"/>
@@ -90,7 +94,7 @@
             </button>
 
             <button class="oauth-btn" type="button" data-oauth-provider="azure">
-              <svg class="oauth-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <svg class="oauth-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#F35325" d="M2 2h9.4v9.4H2z"/>
                 <path fill="#81BC06" d="M12.6 2H22v9.4h-9.4z"/>
                 <path fill="#05A6F0" d="M2 12.6h9.4V22H2z"/>
@@ -100,21 +104,22 @@
             </button>
 
             <button class="oauth-btn" type="button" data-oauth-provider="apple">
-              <svg class="oauth-icon oauth-icon-apple" viewBox="0 0 24 24" aria-hidden="true">
+              <svg class="oauth-icon oauth-icon-apple" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="currentColor" d="M16.7 12.8c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.7-1.7-3.3-1.7-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.1 0 1.6-.7 3-.7 1.3 0 1.7.7 3 .7 1.3 0 2.1-1.1 2.9-2.2.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.7-1-2.7-3.9ZM14.4 6.2c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.8 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3Z"/>
               </svg>
               <span>Apple-аар үргэлжлүүлэх</span>
             </button>
 
             <button class="oauth-btn" type="button" data-oauth-provider="facebook">
-              <svg class="oauth-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <svg class="oauth-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#1877F2" d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.5-3.9 3.8-3.9 1.1 0 2.25.2 2.25.2v2.47h-1.27c-1.25 0-1.64.78-1.64 1.57V12h2.79l-.45 2.89h-2.34v6.99A10 10 0 0 0 22 12Z"/>
               </svg>
               <span>Facebook-ээр үргэлжлүүлэх</span>
             </button>
           </div>
+          <p class="oauth-help">Google, Microsoft, Apple, Facebook нэвтрэлт нь тухайн provider Supabase дээр идэвхжсэн үед ажиллана.</p>
 
-          <div class="auth-divider"><span>эсвэл</span></div>
+          <div class="auth-divider"><span>Имэйлээр үргэлжлүүлэх</span></div>
 
           <label id="nameField" class="field hidden">
             <span>Нэр</span>
@@ -397,7 +402,7 @@
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="app.js" defer></script>
+  <script src="config.js?v=6.0.0"></script>
+  <script src="app.js?v=6.0.0" defer></script>
 </body>
 </html>

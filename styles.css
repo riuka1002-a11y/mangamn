@@ -263,3 +263,80 @@
 .request-list,.admin-request-list{display:grid;gap:12px}.request-item,.admin-request{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;padding:17px;border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.024)}.request-item h3,.admin-request h3{margin:0 0 7px;font-size:16px}.request-meta{display:flex;flex-wrap:wrap;gap:8px 14px;color:var(--muted);font-size:12px}.status-pill{display:inline-flex;align-items:center;justify-content:center;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800}.status-pill.pending{color:#ffe29a;background:rgba(246,196,83,.13)}.status-pill.approved{color:#7ee2bc;background:rgba(54,211,153,.13)}.status-pill.rejected{color:#ffaaaa;background:rgba(255,107,107,.13)}.admin-summary{margin:-12px 0 24px;color:var(--muted)}.admin-request-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.admin-request-details{display:grid;gap:7px}.admin-request-details p{margin:0;color:var(--muted);font-size:13px}.btn-danger{border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.08);color:#ffaaaa}.membership-locked{display:grid;place-items:center;gap:11px;min-height:260px;text-align:center;padding:30px}.membership-locked strong{font-size:22px}.membership-locked p{max-width:520px;margin:0;color:var(--muted);line-height:1.7}
 @media(max-width:1050px){.membership-plans{grid-template-columns:repeat(2,minmax(0,1fr))}.payment-layout{grid-template-columns:1fr}}
 @media(max-width:620px){.membership-plans{grid-template-columns:1fr}.request-item,.admin-request{grid-template-columns:1fr}.admin-request-actions{justify-content:stretch}.admin-request-actions .btn{flex:1}.bank-row{align-items:flex-start}.membership-status-card,.bank-card,.payment-form-card{padding:19px}}
+
+
+/* Authentication UI v6 — cache-safe, compact, responsive */
+.auth-card{
+  width:100%;
+  max-width:470px;
+  justify-self:end;
+  padding:30px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:26px;
+  background:#fff;
+  color:#151515;
+  box-shadow:0 30px 90px rgba(0,0,0,.42);
+}
+.auth-card form{min-width:0}
+.auth-card .auth-tabs{margin-bottom:22px;padding:5px;border-radius:13px;background:#f1f2f5}
+.auth-card .auth-tab{min-height:42px;color:#6f7580}
+.auth-card .auth-tab.active{background:#161616;color:#fff;box-shadow:0 7px 20px rgba(0,0,0,.17)}
+.auth-symbol{width:54px;height:54px;margin-bottom:16px;border-radius:16px}
+.auth-symbol svg{width:26px!important;height:26px!important}
+.auth-card h2{font-size:29px}
+.oauth-stack{display:grid;gap:10px;min-width:0}
+.oauth-btn{
+  position:relative;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px;
+  width:100%;
+  min-width:0;
+  min-height:50px;
+  padding:0 48px;
+  overflow:hidden;
+  border:1px solid #d9dce2;
+  border-radius:12px;
+  background:#fff;
+  color:#151515;
+  box-shadow:0 2px 7px rgba(0,0,0,.045);
+  font-size:14px;
+  font-weight:750;
+  line-height:1.25;
+  white-space:nowrap;
+}
+.oauth-btn .oauth-icon{
+  position:absolute;
+  left:17px;
+  top:50%;
+  width:20px!important;
+  height:20px!important;
+  min-width:20px!important;
+  max-width:20px!important;
+  transform:translateY(-50%);
+  display:block!important;
+}
+.oauth-btn span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.oauth-btn:hover{border-color:#9fa4ae;background:#fafafa;box-shadow:0 8px 24px rgba(0,0,0,.09)}
+.oauth-btn:active{transform:translateY(0) scale(.995)}
+.oauth-help{margin:12px 3px 0!important;text-align:left!important;color:#858a94!important;font-size:11px!important;line-height:1.55!important}
+.auth-divider{margin:20px 0 18px;text-transform:none;white-space:nowrap}
+.auth-card .field{min-width:0}
+.auth-card .field input{min-width:0;min-height:50px}
+.auth-card .btn-primary{min-height:50px;border-radius:12px}
+.auth-card .form-message{overflow-wrap:anywhere}
+@media(max-width:850px){
+  .guest-layout{display:block;width:min(520px,calc(100% - 28px));padding:34px 0 70px}
+  .guest-layout .hero-copy{display:none}
+  .auth-card{max-width:none;justify-self:auto;margin:0 auto}
+}
+@media(max-width:480px){
+  .guest-layout{width:min(100% - 20px,520px);padding-top:18px}
+  .auth-card{padding:20px 16px;border-radius:20px}
+  .auth-card h2{font-size:26px}
+  .oauth-btn{min-height:48px;padding-inline:43px;font-size:13px}
+  .oauth-btn .oauth-icon{left:15px}
+  .role-options{grid-template-columns:1fr}
+}
