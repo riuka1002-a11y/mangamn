@@ -23,7 +23,9 @@
     <nav id="mainNav" class="main-nav hidden" aria-label="Үндсэн цэс">
       <button class="nav-link active" data-view="library">Номын сан</button>
       <button class="nav-link" data-view="favorites">Хадгалсан</button>
+      <button id="membershipNav" class="nav-link" data-view="membership">Гишүүнчлэл</button>
       <button id="studioNav" class="nav-link hidden" data-view="studio">Орчуулагчийн студи</button>
+      <button id="adminNav" class="nav-link hidden" data-view="admin">Админ</button>
     </nav>
 
     <div class="header-actions">
@@ -49,15 +51,71 @@
       </div>
 
       <section class="auth-card" aria-labelledby="authTitle">
-        <div class="auth-tabs" role="tablist">
+        <div class="auth-tabs" role="tablist" aria-label="Нэвтрэх төрөл">
           <button id="loginTab" class="auth-tab active" type="button">Нэвтрэх</button>
           <button id="registerTab" class="auth-tab" type="button">Бүртгүүлэх</button>
         </div>
 
+        <div class="auth-symbol" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28">
+            <path d="M10 17l5-5-5-5M15 12H3M13 3h5a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <h2 id="authTitle">Тавтай морил</h2>
-        <p id="authSubtitle">Имэйл болон нууц үгээрээ нэвтэрнэ үү.</p>
+        <p id="authSubtitle">Имэйл эсвэл өөрийн бүртгэлээр нэвтэрнэ үү.</p>
 
         <form id="authForm" novalidate>
+          <div id="roleField" class="field hidden">
+            <span>Бүртгэлийн төрөл</span>
+            <div class="role-options">
+              <label><input type="radio" name="accountRole" value="reader" checked /> Уншигч</label>
+              <label><input type="radio" name="accountRole" value="translator" /> Орчуулагч баг</label>
+            </div>
+          </div>
+
+          <label id="inviteField" class="field hidden">
+            <span>Орчуулагчийн урилгын код</span>
+            <input id="inviteCode" type="text" autocomplete="off" maxlength="80" placeholder="Жишээ: TEAM-2026" />
+          </label>
+
+          <div class="oauth-stack" aria-label="Сошиал бүртгэлээр үргэлжлүүлэх">
+            <button class="oauth-btn" type="button" data-oauth-provider="google">
+              <svg class="oauth-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.23-.2-1.77H12v3.4h5.52a4.74 4.74 0 0 1-2.05 3.02l-.02.11 2.98 2.31.21.02c1.94-1.79 2.96-4.43 2.96-7.09Z"/>
+                <path fill="#34A853" d="M12 22c2.69 0 4.94-.89 6.59-2.42l-3.17-2.45c-.85.57-1.99.97-3.42.97-2.59 0-4.79-1.75-5.58-4.17l-.1.01-3.1 2.4-.03.1A9.96 9.96 0 0 0 12 22Z"/>
+                <path fill="#FBBC05" d="M6.42 13.93A6 6 0 0 1 6.1 12c0-.67.12-1.32.31-1.93v-.12L3.28 7.52l-.1.05A10 10 0 0 0 2 12c0 1.59.38 3.09 1.18 4.43l3.24-2.5Z"/>
+                <path fill="#EA4335" d="M12 5.9c1.88 0 3.15.81 3.88 1.49l2.77-2.7C16.95 3.11 14.69 2 12 2a9.96 9.96 0 0 0-8.81 5.57l3.23 2.5C7.22 7.65 9.42 5.9 12 5.9Z"/>
+              </svg>
+              <span>Google-ээр үргэлжлүүлэх</span>
+            </button>
+
+            <button class="oauth-btn" type="button" data-oauth-provider="azure">
+              <svg class="oauth-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#F35325" d="M2 2h9.4v9.4H2z"/>
+                <path fill="#81BC06" d="M12.6 2H22v9.4h-9.4z"/>
+                <path fill="#05A6F0" d="M2 12.6h9.4V22H2z"/>
+                <path fill="#FFBA08" d="M12.6 12.6H22V22h-9.4z"/>
+              </svg>
+              <span>Microsoft-оор үргэлжлүүлэх</span>
+            </button>
+
+            <button class="oauth-btn" type="button" data-oauth-provider="apple">
+              <svg class="oauth-icon oauth-icon-apple" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M16.7 12.8c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.7-1.7-3.3-1.7-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.1 0 1.6-.7 3-.7 1.3 0 1.7.7 3 .7 1.3 0 2.1-1.1 2.9-2.2.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.7-1-2.7-3.9ZM14.4 6.2c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.8 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3Z"/>
+              </svg>
+              <span>Apple-аар үргэлжлүүлэх</span>
+            </button>
+
+            <button class="oauth-btn" type="button" data-oauth-provider="facebook">
+              <svg class="oauth-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#1877F2" d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.5-3.9 3.8-3.9 1.1 0 2.25.2 2.25.2v2.47h-1.27c-1.25 0-1.64.78-1.64 1.57V12h2.79l-.45 2.89h-2.34v6.99A10 10 0 0 0 22 12Z"/>
+              </svg>
+              <span>Facebook-ээр үргэлжлүүлэх</span>
+            </button>
+          </div>
+
+          <div class="auth-divider"><span>эсвэл</span></div>
+
           <label id="nameField" class="field hidden">
             <span>Нэр</span>
             <input id="displayName" type="text" autocomplete="name" maxlength="60" placeholder="Таны нэр" />
@@ -71,19 +129,6 @@
           <label class="field">
             <span>Нууц үг</span>
             <input id="password" type="password" autocomplete="current-password" minlength="8" required placeholder="Доод тал нь 8 тэмдэгт" />
-          </label>
-
-          <div id="roleField" class="field hidden">
-            <span>Бүртгэлийн төрөл</span>
-            <div class="role-options">
-              <label><input type="radio" name="accountRole" value="reader" checked /> Уншигч</label>
-              <label><input type="radio" name="accountRole" value="translator" /> Орчуулагч баг</label>
-            </div>
-          </div>
-
-          <label id="inviteField" class="field hidden">
-            <span>Орчуулагчийн урилгын код</span>
-            <input id="inviteCode" type="text" autocomplete="off" maxlength="80" placeholder="Жишээ: TEAM-2026" />
           </label>
 
           <button id="authSubmit" class="btn btn-primary btn-block" type="submit">Нэвтрэх</button>
@@ -176,6 +221,107 @@
           <h3>Хадгалсан манга алга</h3>
           <p>Манганы дэлгэрэнгүй хэсэгт зүрхэн товч дарж хадгална.</p>
         </div>
+      </section>
+
+
+      <section id="membershipView" class="view-panel hidden">
+        <div class="section-heading membership-heading">
+          <div>
+            <span class="eyebrow">Төлбөртэй эрх</span>
+            <h2>Гишүүнчлэл авах</h2>
+          </div>
+          <button class="btn btn-ghost" type="button" data-refresh-membership>Төлөв шинэчлэх</button>
+        </div>
+
+        <div id="membershipStatus" class="membership-status-card"></div>
+
+        <section class="membership-section">
+          <div class="shelf-head">
+            <div>
+              <span class="eyebrow">Багцаа сонгох</span>
+              <h2>Гишүүнчлэлийн багцууд</h2>
+            </div>
+            <span class="shelf-count">Банкны шилжүүлгээр</span>
+          </div>
+          <div id="membershipPlans" class="membership-plans"></div>
+        </section>
+
+        <section class="payment-layout">
+          <article class="bank-card">
+            <span class="eyebrow">Данс руу шилжүүлэх</span>
+            <h3>M банк</h3>
+            <div class="bank-row">
+              <div><span>Дансны дугаар</span><strong>8010 28 4219</strong></div>
+              <button class="copy-btn" type="button" data-copy-text="5700668523">Хуулах</button>
+            </div>
+            <div class="bank-row">
+              <div><span>IBAN</span><strong>MN1000 3900 8010 28 4219</strong></div>
+              <button class="copy-btn" type="button" data-copy-text="MN780005005700668523">Хуулах</button>
+            </div>
+            <div class="bank-row">
+              <div><span>Данс эзэмшигч</span><strong>Ариун-Эрдэнэ</strong></div>
+            </div>
+            <div class="payment-warning">
+              <strong>Гүйлгээний утга:</strong>
+              <span>Бүртгэлтэй нэр, имэйл болон сонгосон сарын тоогоо бичнэ.</span>
+              <code id="transferMeaningExample">username · email · 1 сар</code>
+            </div>
+            <p class="bank-note">Шилжүүлсний дараа баримтаа илгээнэ. Админ гараар шалгаж баталгаажуулсны дараа унших эрх нээгдэнэ.</p>
+          </article>
+
+          <article class="payment-form-card">
+            <span class="eyebrow">Төлбөр мэдэгдэх</span>
+            <h3>Шилжүүлгийн хүсэлт</h3>
+            <form id="membershipRequestForm" class="stack-form">
+              <label class="field">
+                <span>Сонгосон багц</span>
+                <select id="membershipPlanSelect" required></select>
+              </label>
+              <label class="field">
+                <span>Шилжүүлэгчийн нэр</span>
+                <input id="membershipSenderName" type="text" maxlength="120" required placeholder="Банкны дансны нэр" />
+              </label>
+              <label class="field">
+                <span>Гүйлгээний утга / лавлах</span>
+                <input id="membershipReference" type="text" maxlength="180" required placeholder="Жишээ: Ariuka · email · 1 сар" />
+              </label>
+              <label class="field">
+                <span>Шилжүүлсэн огноо</span>
+                <input id="membershipTransferDate" type="date" required />
+              </label>
+              <label class="field">
+                <span>Төлбөрийн баримт</span>
+                <input id="membershipReceipt" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required />
+              </label>
+              <button class="btn btn-primary btn-block" type="submit">Хүсэлт илгээх</button>
+              <p id="membershipMessage" class="form-message" aria-live="polite"></p>
+            </form>
+          </article>
+        </section>
+
+        <section class="membership-section">
+          <div class="shelf-head">
+            <div>
+              <span class="eyebrow">Түүх</span>
+              <h2>Миний хүсэлтүүд</h2>
+            </div>
+          </div>
+          <div id="membershipRequests" class="request-list"></div>
+        </section>
+      </section>
+
+      <section id="adminView" class="view-panel hidden">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Гараар баталгаажуулах</span>
+            <h2>Гишүүнчлэлийн хүсэлтүүд</h2>
+          </div>
+          <button class="btn btn-ghost" type="button" data-refresh-admin>Шинэчлэх</button>
+        </div>
+        <div class="admin-summary">
+          <span>Хүлээгдэж буй хүсэлтийг баримттай нь шалгаад зөвшөөрөх эсвэл татгалзана.</span>
+        </div>
+        <div id="adminRequests" class="admin-request-list"></div>
       </section>
 
       <section id="studioView" class="view-panel hidden">

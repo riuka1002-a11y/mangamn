@@ -124,3 +124,142 @@
   .shelf-head{align-items:flex-start}
   .shelf-count{display:none}
 }
+
+
+/* Social OAuth authentication */
+.auth-card{
+  padding:28px;
+  border-color:rgba(255,255,255,.18);
+  background:#ffffff;
+  color:#151515;
+  box-shadow:0 24px 70px rgba(0,0,0,.34);
+}
+.auth-card .auth-tabs{
+  margin-bottom:24px;
+  background:#f1f2f5;
+}
+.auth-card .auth-tab{color:#727782}
+.auth-card .auth-tab.active{
+  background:#151515;
+  color:#fff;
+  box-shadow:0 6px 18px rgba(0,0,0,.16);
+}
+.auth-symbol{
+  display:grid;
+  place-items:center;
+  width:58px;
+  height:58px;
+  margin:0 auto 18px;
+  border-radius:17px;
+  background:#151515;
+  color:#fff;
+}
+.auth-card h2{
+  margin:0 0 7px;
+  text-align:center;
+  color:#111;
+  font-size:30px;
+  letter-spacing:-.035em;
+}
+.auth-card>p{
+  margin:0 0 24px;
+  text-align:center;
+  color:#777d87;
+}
+.oauth-stack{display:grid;gap:11px}
+.oauth-btn{
+  position:relative;
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr) 28px;
+  align-items:center;
+  width:100%;
+  min-height:50px;
+  padding:0 14px;
+  border:1px solid #dfe1e5;
+  border-radius:10px;
+  background:#fff;
+  color:#121212;
+  box-shadow:0 2px 5px rgba(0,0,0,.045);
+  cursor:pointer;
+  font:inherit;
+  font-size:14px;
+  font-weight:750;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.oauth-btn span{grid-column:2;text-align:center}
+.oauth-btn:hover{
+  transform:translateY(-1px);
+  border-color:#b9bdc5;
+  box-shadow:0 7px 18px rgba(0,0,0,.08);
+}
+.oauth-btn:focus-visible{
+  outline:3px solid rgba(66,133,244,.22);
+  outline-offset:2px;
+}
+.oauth-btn:disabled{opacity:.65;cursor:wait;transform:none}
+.oauth-icon{
+  grid-column:1;
+  width:21px;
+  height:21px;
+}
+.oauth-icon-apple{color:#000}
+.auth-divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:22px 0;
+  color:#90949c;
+  font-size:12px;
+  text-transform:uppercase;
+}
+.auth-divider::before,.auth-divider::after{
+  content:"";
+  height:1px;
+  flex:1;
+  background:#e3e5e9;
+}
+.auth-card .field>span{color:#1d1f23}
+.auth-card .field input{
+  border-color:#d8dbe1;
+  background:#fff;
+  color:#171717;
+}
+.auth-card .field input::placeholder{color:#9b9fa7}
+.auth-card .field input:focus{
+  border-color:#151515;
+  box-shadow:0 0 0 4px rgba(21,21,21,.08);
+}
+.auth-card .role-options label{
+  border-color:#d8dbe1;
+  background:#fafafa;
+  color:#3f434b;
+}
+.auth-card .role-options label:has(input:checked){
+  border-color:#151515;
+  background:#f0f0f0;
+  color:#111;
+}
+.auth-card .btn-primary{
+  background:#151515;
+  color:#fff;
+  box-shadow:none;
+}
+.auth-card .btn-primary:hover{background:#292929}
+.auth-card .form-message{color:#727782}
+.auth-card .form-message.error{color:#c93d3d}
+.auth-card .form-message.success{color:#148458}
+@media(max-width:620px){
+  .auth-card{padding:20px}
+  .oauth-btn{font-size:13px}
+}
+
+
+/* Membership and manual bank transfer */
+.membership-heading{align-items:center}
+.membership-status-card{margin-bottom:42px;padding:24px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(140,92,255,.13),rgba(255,79,139,.07));box-shadow:var(--shadow)}
+.membership-status-card h3{margin:8px 0 8px;font-size:25px}.membership-status-card p{margin:0;color:var(--muted);line-height:1.7}.membership-status-card.active{border-color:rgba(54,211,153,.35);background:linear-gradient(145deg,rgba(54,211,153,.13),rgba(140,92,255,.07))}.membership-status-card.pending{border-color:rgba(246,196,83,.35)}
+.membership-section{display:grid;gap:18px;margin-bottom:46px}.membership-plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.membership-plan{position:relative;display:grid;gap:14px;padding:22px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.025);overflow:hidden}.membership-plan:before{content:"";position:absolute;inset:auto -30px -40px auto;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(255,79,139,.19),transparent 68%)}.membership-plan h3{margin:0;font-size:20px}.membership-plan-price{font-size:30px;font-weight:900;letter-spacing:-.04em}.membership-plan-price small{font-size:12px;color:var(--muted);font-weight:700}.membership-plan p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.membership-plan .btn{position:relative;z-index:1;margin-top:auto}.membership-plan.selected{border-color:rgba(255,79,139,.55);box-shadow:0 0 0 4px rgba(255,79,139,.09)}
+.payment-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;margin-bottom:48px}.bank-card,.payment-form-card{padding:25px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.025)}.bank-card h3,.payment-form-card h3{margin:8px 0 22px;font-size:27px}.bank-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 0;border-bottom:1px solid var(--line)}.bank-row div{display:grid;gap:5px}.bank-row span{color:var(--muted);font-size:12px}.bank-row strong{font-size:18px;word-break:break-word}.copy-btn{min-width:72px;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--text);cursor:pointer}.copy-btn:hover{border-color:rgba(255,79,139,.45)}.payment-warning{display:grid;gap:7px;margin-top:20px;padding:15px;border:1px solid rgba(246,196,83,.26);border-radius:15px;background:rgba(246,196,83,.07)}.payment-warning span,.bank-note{color:var(--muted);font-size:13px;line-height:1.65}.payment-warning code{padding:9px;border-radius:9px;background:rgba(0,0,0,.22);color:#ffe29a;white-space:normal}.bank-note{margin:16px 0 0}
+.request-list,.admin-request-list{display:grid;gap:12px}.request-item,.admin-request{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;padding:17px;border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.024)}.request-item h3,.admin-request h3{margin:0 0 7px;font-size:16px}.request-meta{display:flex;flex-wrap:wrap;gap:8px 14px;color:var(--muted);font-size:12px}.status-pill{display:inline-flex;align-items:center;justify-content:center;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800}.status-pill.pending{color:#ffe29a;background:rgba(246,196,83,.13)}.status-pill.approved{color:#7ee2bc;background:rgba(54,211,153,.13)}.status-pill.rejected{color:#ffaaaa;background:rgba(255,107,107,.13)}.admin-summary{margin:-12px 0 24px;color:var(--muted)}.admin-request-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.admin-request-details{display:grid;gap:7px}.admin-request-details p{margin:0;color:var(--muted);font-size:13px}.btn-danger{border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.08);color:#ffaaaa}.membership-locked{display:grid;place-items:center;gap:11px;min-height:260px;text-align:center;padding:30px}.membership-locked strong{font-size:22px}.membership-locked p{max-width:520px;margin:0;color:var(--muted);line-height:1.7}
+@media(max-width:1050px){.membership-plans{grid-template-columns:repeat(2,minmax(0,1fr))}.payment-layout{grid-template-columns:1fr}}
+@media(max-width:620px){.membership-plans{grid-template-columns:1fr}.request-item,.admin-request{grid-template-columns:1fr}.admin-request-actions{justify-content:stretch}.admin-request-actions .btn{flex:1}.bank-row{align-items:flex-start}.membership-status-card,.bank-card,.payment-form-card{padding:19px}}
