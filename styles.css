@@ -481,3 +481,54 @@ body.guest-mode #guestView.auth-screen>.auth-card{
 .site-footer a{color:var(--muted);text-decoration:none}.site-footer a:hover{color:var(--text)}
 @media(max-width:1050px){.guest-demo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.translator-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.mobile-nav-toggle{display:block}.main-nav{position:absolute;top:72px;left:16px;right:16px;display:none!important;flex-direction:column;align-items:stretch;padding:12px;border:1px solid var(--border);border-radius:18px;background:rgba(15,13,23,.98);z-index:50}.main-nav.mobile-open{display:flex!important}.mobile-nav-toggle.hidden{display:none!important}}
 @media(max-width:680px){.guest-demo-catalog{width:calc(100vw - 24px);padding:16px}.guest-demo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.guest-demo-head{align-items:start;flex-direction:column}.translator-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chapter-sort-list{grid-template-columns:repeat(3,minmax(0,1fr))}.reader-display-controls{width:100%;justify-content:flex-end}.reader-toolbar{flex-wrap:wrap}.reader-width-control{display:none}}
+
+
+/* MangaVerse v13.2.3 — translator team email registry */
+.field small{
+  display:block;
+  margin-top:.4rem;
+  color:var(--muted);
+  font-size:.78rem;
+  line-height:1.45;
+}
+.team-email-details{
+  margin-top:.75rem;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.02);
+}
+.team-email-details summary{
+  cursor:pointer;
+  padding:.75rem .9rem;
+  font-weight:700;
+}
+.team-email-list{
+  list-style:none;
+  margin:0;
+  padding:0 .9rem .9rem;
+  display:grid;
+  gap:.45rem;
+}
+.team-email-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+  padding:.55rem .65rem;
+  border-radius:10px;
+  background:rgba(255,255,255,.035);
+  overflow-wrap:anywhere;
+}
+.team-email-row>span:first-child{
+  min-width:0;
+}
+.team-email-empty{
+  color:var(--muted);
+  padding:.4rem 0;
+}
+@media(max-width:640px){
+  .team-email-row{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}

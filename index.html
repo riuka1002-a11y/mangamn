@@ -10,7 +10,7 @@
 <link href="assets/logo.svg" rel="icon" type="image/svg+xml"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="https://cdn.jsdelivr.net" rel="preconnect"/>
-<link href="styles.css?v=13.1.0" rel="stylesheet"/>
+<link href="styles.css?v=13.2.3" rel="stylesheet"/>
 <meta content="index,follow,max-image-preview:large" name="robots"/><meta content="website" property="og:type"/><meta content="MangaVerse — Монгол манга платформ" property="og:title"/><meta content="Монгол орчуулгатай манга, манхва унших платформ." property="og:description"/><meta content="https://riuka1002-a11y.github.io/mangamn/assets/logo-v8.svg" property="og:image"/><meta content="summary_large_image" name="twitter:card"/><meta content="MangaVerse — Монгол манга платформ" name="twitter:title"/><meta content="Монгол орчуулгатай манга, манхва унших платформ." name="twitter:description"/><link href="https://riuka1002-a11y.github.io/mangamn/" rel="canonical"/></head>
 <body>
 <div class="setup-notice hidden" id="setupNotice" role="alert"></div>
@@ -299,6 +299,7 @@
 <label class="field"><span>Багийн нэр</span><input id="adminTeamName" maxlength="100" placeholder="Жишээ: Moonlight баг" required="" type="text"/></label>
 <label class="field"><span>Тусгай код</span><input id="adminTeamCode" maxlength="80" placeholder="Багт өгөх нууц код" required="" type="password"/></label>
 <label class="field"><span>Гишүүний дээд тоо</span><input id="adminTeamMax" max="20" min="1" required="" type="number" value="20"/></label>
+<label class="field"><span>Багт орох гишүүдийн email</span><textarea id="adminTeamEmails" maxlength="3000" placeholder="Нэг мөрөнд нэг email бичнэ.&#10;member1@gmail.com&#10;member2@gmail.com" required="" rows="5"></textarea><small>Зөвхөн энд бүртгэсэн email болон тусгай код хоёул таарсан үед багт орно.</small></label>
 <label class="field"><span>Банк</span><input id="adminTeamBank" maxlength="80" required="" type="text" value="M банк"/></label>
 <label class="field"><span>Данс</span><input id="adminTeamAccount" maxlength="80" required="" type="text"/></label>
 <label class="field"><span>IBAN</span><input id="adminTeamIban" maxlength="100" required="" type="text"/></label>
@@ -573,8 +574,8 @@
 </section>
 <div aria-live="polite" class="toast hidden" id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=13.1.0"></script>
-<script defer="" src="app.js?v=13.1.0"></script><script defer="True" src="v13.js?v=13.1.0"></script><dialog class="modal form-modal" id="adminRejectDialog">
+<script src="config.js?v=13.2.3"></script>
+<script defer="" src="app.js?v=13.2.3"></script><script defer="True" src="v13.js?v=13.2.3"></script><dialog class="modal form-modal" id="adminRejectDialog">
 <button aria-label="Хаах" class="modal-close" data-close-dialog="adminRejectDialog">×</button>
 <div class="modal-title"><span class="eyebrow">Хүсэлт татгалзах</span><h2>Татгалзсан шалтгаан</h2></div>
 <form class="stack-form" id="adminRejectForm">

@@ -25,7 +25,7 @@ function daysRemaining(value){if(!value)return 0;return Math.max(0,Math.ceil((ne
 function authRedirectUrl(){return APP_SITE_URL}
 function roleLabel(role){if(role==="admin")return"Админ";if(role==="translator")return"Орчуулагч";return"Уншигч"}
 function hasReadingAccess(){return ["translator","admin"].includes(state.profile?.role)||Boolean(state.membership&&new Date(state.membership.expires_at)>new Date())}
-function registerServiceWorker(){if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=13.1.0",{updateViaCache:"none"}).catch(()=>{}))}
+function registerServiceWorker(){if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=13.2.3",{updateViaCache:"none"}).catch(()=>{}))}
 function configureAuthMode(mode){authMode=mode;const reg=mode==="register";$("loginTab").classList.toggle("hidden",!reg);$("registerTab").classList.toggle("hidden",reg);$("forgotPasswordBtn").classList.toggle("hidden",reg);$("nameField").classList.toggle("hidden",!reg);$("authTitle").textContent=reg?"Шинэ бүртгэл":"Тавтай морил!";$("authSubtitle").textContent=reg?"Шинэ бүртгэл уншигчийн эрхээр үүснэ.":"Та бүртгэлтэй имэйл болон нууц үгээрээ нэвтэрнэ үү.";$("authModeHint").textContent=reg?"Орчуулагчийн эрхийг бүртгүүлсний дараа багийн тусгай кодоор нээнэ.":"Та бүртгүүлсний дараа манга унших боломжтой.";$("authSubmit").textContent=reg?"♙ Бүртгэл үүсгэх":"↪ Нэвтрэх";$("authSubmit").className=`auth-action ${reg?"auth-register":"auth-login"}`;$("password").autocomplete=reg?"new-password":"current-password";setMessage($("authMessage"))}
 function updateInviteVisibility(){}
 function getOAuthRedirectUrl(){const url=new URL("./",window.location.href);url.search="";url.hash="";return url.href}
@@ -152,8 +152,101 @@ async function refreshAdminAll(){
 }
 
 async function loadAdminTeams(){if(state.profile?.role!=="admin")return;const{data,error}=await db.rpc("get_admin_translator_teams");if(error){showToast(error.message,"error");return}state.adminTeams=Array.isArray(data)?data:[];renderAdminTeams()}
-function renderAdminTeams(){const root=$("adminTeamList");if(!root)return;root.innerHTML=state.adminTeams.length?state.adminTeams.map(t=>`<article class="admin-team-item"><h3>${escapeHTML(t.name)}</h3><p>Гишүүн: ${Number(t.member_count||0)}/${Number(t.max_members||20)} · Манга: ${Number(t.manga_count||0)}</p><p>Super Like: ${Number(t.super_like_count||0)} (${escapeHTML(formatMoney(t.super_like_value||0))})</p><p>${escapeHTML(t.bank_name||"")} · ${escapeHTML(t.bank_account||"")} · ${escapeHTML(t.bank_holder||"")}</p></article>`).join(""):'<div class="section-empty">Баг үүсгээгүй байна.</div>'}
-async function createAdminTeam(e){e.preventDefault();const form=e.currentTarget,btn=form.querySelector('button[type="submit"]'),msg=$("adminTeamMessage");setMessage(msg);setButtonLoading(btn,true,"Үүсгэж байна...");try{const{error}=await db.rpc("admin_create_translator_team",{p_name:$("adminTeamName").value.trim(),p_code:$("adminTeamCode").value.trim(),p_max_members:Number($("adminTeamMax").value||20),p_bank_name:$("adminTeamBank").value.trim(),p_bank_account:$("adminTeamAccount").value.trim(),p_bank_iban:$("adminTeamIban").value.trim(),p_bank_holder:$("adminTeamHolder").value.trim()});if(error)throw error;form.reset();$("adminTeamMax").value="20";$("adminTeamBank").value="M банк";setMessage(msg,"Баг үүслээ. Кодыг зөвхөн тухайн багт өгнө үү.","success");await Promise.all([loadAdminTeams(),loadAdminDashboard()])}catch(err){setMessage(msg,err.message||"Баг үүсгэж чадсангүй.","error")}finally{setButtonLoading(btn,false)}}
+function renderAdminTeams(){
+  const root=$("adminTeamList");
+  if(!root)return;
+  root.innerHTML=state.adminTeams.length?state.adminTeams.map(t=>{
+    const allowed=Array.isArray(t.allowed_emails)?t.allowed_emails:[];
+    const members=Array.isArray(t.member_emails)?t.member_emails:[];
+    const emailRows=allowed.length?allowed.map(item=>`<li class="team-email-row"><span>${escapeHTML(item.email)}</span><span class="status-pill ${item.claimed?"approved":"pending"}">${item.claimed?"Нэгдсэн":"Хүлээж байна"}</span></li>`).join(""):'<li class="team-email-empty">Email бүртгээгүй байна.</li>';
+    const memberRows=members.length?members.map(item=>`<li class="team-email-row"><span>${escapeHTML(item.email)}</span><span>${escapeHTML(formatDate(item.joined_at))}</span></li>`).join(""):'<li class="team-email-empty">Одоогоор гишүүн нэгдээгүй.</li>';
+    return `<article class="admin-team-item">
+      <h3>${escapeHTML(t.name)}</h3>
+      <p>Гишүүн: ${Number(t.member_count||0)}/${Number(t.max_members||20)} · Манга: ${Number(t.manga_count||0)}</p>
+      <p>Бүртгэлтэй email: ${Number(t.allowed_email_count||allowed.length)} · Super Like: ${Number(t.super_like_count||0)} (${escapeHTML(formatMoney(t.super_like_value||0))})</p>
+      <p>${escapeHTML(t.bank_name||"")} · ${escapeHTML(t.bank_account||"")} · ${escapeHTML(t.bank_holder||"")}</p>
+      <details class="team-email-details">
+        <summary>Зөвшөөрөгдсөн email-үүд</summary>
+        <ul class="team-email-list">${emailRows}</ul>
+      </details>
+      <details class="team-email-details">
+        <summary>Нэгдсэн гишүүдийн email</summary>
+        <ul class="team-email-list">${memberRows}</ul>
+      </details>
+      <div class="admin-request-actions">
+        <button class="btn btn-ghost" type="button" data-manage-team-emails="${escapeHTML(t.id)}">Mail бүртгэл</button>
+        <button class="btn btn-ghost" type="button" data-rename-team="${escapeHTML(t.id)}" data-team-name="${escapeHTML(t.name)}">Нэр засах</button>
+        <button class="btn btn-danger" type="button" data-delete-team="${escapeHTML(t.id)}" data-team-name="${escapeHTML(t.name)}" data-team-members="${Number(t.member_count||0)}" data-team-mangas="${Number(t.manga_count||0)}">Баг устгах</button>
+      </div>
+    </article>`;
+  }).join(""):'<div class="section-empty">Баг үүсгээгүй байна.</div>';
+}
+
+async function manageTeamEmails(teamId){
+  const team=state.adminTeams.find(item=>item.id===teamId);
+  if(!team){showToast("Багийн мэдээлэл олдсонгүй.","error");return}
+  const current=(Array.isArray(team.allowed_emails)?team.allowed_emails:[]).map(item=>item.email).join("\\n");
+  const value=prompt(`"${team.name}" багт орох email-үүдийг нэг мөрөнд нэгээр бичнэ үү:`,current);
+  if(value===null)return;
+  const clean=value.trim();
+  if(!clean&&!confirm("Email жагсаалтыг хоослох уу? Ингэвэл тусгай кодтой хүн бүр багт орох боломжтой болно."))return;
+  const{error}=await db.rpc("admin_set_team_member_emails",{p_team_id:teamId,p_emails:clean});
+  if(error){showToast(error.message||"Email бүртгэлийг шинэчилж чадсангүй.","error");return}
+  showToast("Багийн email бүртгэл шинэчлэгдлээ.","success");
+  await loadAdminTeams();
+}
+
+async function renameAdminTeam(teamId,currentName){
+  const value=prompt("Багийн шинэ нэр:",currentName||"");
+  if(value===null)return;
+  const newName=value.trim();
+  if(newName===currentName)return;
+  if(newName.length<2||newName.length>80){showToast("Багийн нэр 2-80 тэмдэгт байна.","error");return}
+  const{error}=await db.rpc("admin_rename_translator_team",{p_team_id:teamId,p_new_name:newName});
+  if(error){showToast(error.message||"Багийн нэрийг засаж чадсангүй.","error");return}
+  showToast("Багийн нэр шинэчлэгдлээ.","success");
+  await Promise.all([loadAdminTeams(),loadAdminDashboard()]);
+}
+
+async function deleteAdminTeam(teamId,teamName,memberCount,mangaCount){
+  if(Number(mangaCount)>0){showToast(`"${teamName}" багт ${mangaCount} манга байна. Эхлээд мангануудыг шилжүүлэх эсвэл устгана уу.`,"error");return}
+  const warning=Number(memberCount)>0?`\n${memberCount} гишүүний орчуулагчийн эрх уншигч болж өөрчлөгдөнө.`:"";
+  if(!confirm(`"${teamName}" багийг бүр мөсөн устгах уу?${warning}\n\nЭнэ үйлдлийг буцаах боломжгүй.`))return;
+  const{error}=await db.rpc("admin_delete_translator_team",{p_team_id:teamId});
+  if(error){showToast(error.message||"Багийг устгаж чадсангүй.","error");return}
+  showToast(`"${teamName}" баг устлаа.`,"success");
+  await Promise.all([loadAdminTeams(),loadAdminDashboard()]);
+}
+async function createAdminTeam(e){
+  e.preventDefault();
+  const form=e.currentTarget,btn=form.querySelector('button[type="submit"]'),msg=$("adminTeamMessage");
+  const emails=$("adminTeamEmails").value.trim();
+  setMessage(msg);
+  if(!emails){setMessage(msg,"Багт орох гишүүдийн email-ийг бүртгэнэ үү.","error");return}
+  setButtonLoading(btn,true,"Үүсгэж байна...");
+  try{
+    const{error}=await db.rpc("admin_create_translator_team_with_emails",{
+      p_name:$("adminTeamName").value.trim(),
+      p_code:$("adminTeamCode").value.trim(),
+      p_max_members:Number($("adminTeamMax").value||20),
+      p_bank_name:$("adminTeamBank").value.trim(),
+      p_bank_account:$("adminTeamAccount").value.trim(),
+      p_bank_iban:$("adminTeamIban").value.trim(),
+      p_bank_holder:$("adminTeamHolder").value.trim(),
+      p_member_emails:emails
+    });
+    if(error)throw error;
+    form.reset();
+    $("adminTeamMax").value="20";
+    $("adminTeamBank").value="M банк";
+    setMessage(msg,"Баг болон зөвшөөрөгдсөн email бүртгэл үүслээ.","success");
+    await Promise.all([loadAdminTeams(),loadAdminDashboard()]);
+  }catch(err){
+    setMessage(msg,err.message||"Баг үүсгэж чадсангүй.","error");
+  }finally{
+    setButtonLoading(btn,false);
+  }
+}
 async function loadAdminSuperLikeRequests(){if(state.profile?.role!=="admin")return;const{data,error}=await db.rpc("get_admin_super_like_requests");if(error){showToast(error.message,"error");return}state.adminSuperLikeRequests=Array.isArray(data)?data:[];renderAdminSuperLikeRequests()}
 function renderAdminSuperLikeRequests(){const root=$("adminSuperLikeRequests");if(!root)return;root.innerHTML=state.adminSuperLikeRequests.length?state.adminSuperLikeRequests.map(r=>{const meta=membershipStatusMeta(r.status);return`<article class="admin-request superlike-request"><div class="admin-request-details"><h3>${escapeHTML(r.user_name)} → ${escapeHTML(r.team_name)}</h3><p>${Number(r.quantity)} Super Like · ${escapeHTML(formatMoney(r.amount_mnt))} · ${escapeHTML(r.manga_title)} / Бүлэг ${escapeHTML(r.chapter_number)}</p><p>Гүйлгээ: ${escapeHTML(r.transfer_reference)}</p><div class="request-meta"><span>${escapeHTML(formatDate(r.created_at))}</span><span class="status-pill ${meta.className}">${meta.label}</span></div></div><div class="admin-request-actions"><button class="btn btn-ghost" data-open-super-receipt="${escapeHTML(r.receipt_path)}" type="button">Баримт</button>${r.status==="pending"?`<button class="btn btn-primary" data-review-superlike="${escapeHTML(r.id)}" data-super-action="approve" type="button">Зөвшөөрөх</button><button class="btn btn-danger" data-review-superlike="${escapeHTML(r.id)}" data-super-action="reject" type="button">Татгалзах</button>`:""}</div></article>`}).join(""):'<div class="section-empty">Super Like хүсэлт алга.</div>'}
 async function reviewSuperLikeRequest(id,approve){if(!confirm(`Энэ Super Like хүсэлтийг ${approve?"зөвшөөрөх":"татгалзах"} уу?`))return;const note=prompt("Админы тайлбар (заавал биш):","")||"";const{error}=await db.rpc("review_super_like_request",{p_request_id:id,p_approve:approve,p_admin_note:note});if(error){showToast(error.message,"error");return}showToast(approve?"Super Like баталгаажлаа.":"Хүсэлт татгалзагдлаа.","success");await Promise.all([loadAdminSuperLikeRequests(),loadAdminDashboard()])}
@@ -216,7 +309,7 @@ async function requestPasswordReset(){const email=$("email").value.trim();setMes
 async function updateRecoveredPassword(e){e.preventDefault();const password=$("newPassword").value,btn=e.currentTarget.querySelector('button[type="submit"]'),msg=$("resetPasswordMessage");setMessage(msg);if(password.length<8){setMessage(msg,"Нууц үг доод тал нь 8 тэмдэгт байна.","error");return}setButtonLoading(btn,true,"Хадгалж байна...");try{const{error}=await db.auth.updateUser({password});if(error)throw error;setMessage(msg,"Нууц үг амжилттай шинэчлэгдлээ.","success");setTimeout(()=>$("resetPasswordDialog").close(),900)}catch(err){setMessage(msg,err.message||"Нууц үг шинэчилж чадсангүй.","error")}finally{setButtonLoading(btn,false)}}
 
 function showView(view){const allowed=["library","favorites","membership","studio","admin","profile"];if(!allowed.includes(view)||view==="studio"&&state.profile?.role!=="translator"||view==="admin"&&state.profile?.role!=="admin")return;allowed.forEach(x=>$(x+"View")?.classList.toggle("hidden",x!==view));document.querySelectorAll(".nav-link[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));window.scrollTo({top:0,behavior:"smooth"});if(view==="favorites")renderFavorites();if(view==="membership")loadMembershipData();if(view==="studio")loadStudio();if(view==="admin"){loadAdminDashboard();loadAdminRequests();loadAdminSuperLikeRequests();loadAdminTeams()}if(view==="profile"){loadProfileDashboard();loadTeamInfo()}}
-function handleDocumentClick(e){const refreshAll=e.target.closest("[data-refresh-admin-all]");if(refreshAll){refreshAdminAll();return}const userStatus=e.target.closest("[data-admin-user-status]");if(userStatus){adminSetUserStatus(userStatus.dataset.adminUserStatus,userStatus.dataset.nextStatus);return}const membershipAction=e.target.closest("[data-admin-membership]");if(membershipAction){adminAdjustMembership(membershipAction.dataset.adminMembership,membershipAction.dataset.membershipAction);return}const delComment=e.target.closest("[data-delete-comment]");if(delComment){deleteChapterComment(delComment.dataset.deleteComment);return}const refreshTeams=e.target.closest("[data-refresh-teams]");if(refreshTeams){loadAdminTeams();return}const refreshSL=e.target.closest("[data-refresh-superlikes]");if(refreshSL){loadAdminSuperLikeRequests();return}const slReceipt=e.target.closest("[data-open-super-receipt]");if(slReceipt){openSuperLikeReceipt(slReceipt.dataset.openSuperReceipt);return}const slReview=e.target.closest("[data-review-superlike]");if(slReview){reviewSuperLikeRequest(slReview.dataset.reviewSuperlike,slReview.dataset.superAction==="approve");return}const target=e.target.closest("[data-view-target]");if(target){e.preventDefault();showView(target.dataset.viewTarget);return}const close=e.target.closest("[data-close-dialog]");if(close){$(close.dataset.closeDialog)?.close();return}const copy=e.target.closest("[data-copy-text]");if(copy){copyText(copy.dataset.copyText);return}const plan=e.target.closest("[data-select-plan]");if(plan){selectMembershipPlan(plan.dataset.selectPlan);return}const refreshMember=e.target.closest("[data-refresh-membership]");if(refreshMember){loadMembershipData();return}const refreshAdmin=e.target.closest("[data-refresh-admin]");if(refreshAdmin){loadAdminRequests();return}const receipt=e.target.closest("[data-open-receipt]");if(receipt){openMembershipReceipt(receipt.dataset.openReceipt);return}const review=e.target.closest("[data-review-request]");if(review){reviewMembershipRequest(review.dataset.reviewRequest,review.dataset.reviewAction==="approve");return}const fav=e.target.closest("[data-favorite]");if(fav){e.stopPropagation();toggleFavorite(fav.dataset.favorite);return}const manga=e.target.closest("[data-open-manga]");if(manga){openManga(manga.dataset.openManga);return}const read=e.target.closest("[data-read-chapter]");if(read){openReader(read.dataset.readChapter);return}const first=e.target.closest("[data-read-first]");if(first&&state.currentChapters[0]){openReader(state.currentChapters[0].id);return}const manage=e.target.closest("[data-manage-manga]");if(manage){openManageManga(manage.dataset.manageManga);return}const pub=e.target.closest("[data-toggle-publish]");if(pub){toggleMangaPublish(pub.dataset.togglePublish);return}const del=e.target.closest("[data-delete-manga]");if(del){deleteManga(del.dataset.deleteManga);return}const tc=e.target.closest("[data-toggle-chapter]");if(tc){toggleChapter(tc.dataset.toggleChapter);return}const dc=e.target.closest("[data-delete-chapter]");if(dc)deleteChapter(dc.dataset.deleteChapter)}
+function handleDocumentClick(e){const manageEmails=e.target.closest("[data-manage-team-emails]");if(manageEmails){manageTeamEmails(manageEmails.dataset.manageTeamEmails);return}const renameTeam=e.target.closest("[data-rename-team]");if(renameTeam){renameAdminTeam(renameTeam.dataset.renameTeam,renameTeam.dataset.teamName);return}const deleteTeam=e.target.closest("[data-delete-team]");if(deleteTeam){deleteAdminTeam(deleteTeam.dataset.deleteTeam,deleteTeam.dataset.teamName,deleteTeam.dataset.teamMembers,deleteTeam.dataset.teamMangas);return}const refreshAll=e.target.closest("[data-refresh-admin-all]");if(refreshAll){refreshAdminAll();return}const userStatus=e.target.closest("[data-admin-user-status]");if(userStatus){adminSetUserStatus(userStatus.dataset.adminUserStatus,userStatus.dataset.nextStatus);return}const membershipAction=e.target.closest("[data-admin-membership]");if(membershipAction){adminAdjustMembership(membershipAction.dataset.adminMembership,membershipAction.dataset.membershipAction);return}const delComment=e.target.closest("[data-delete-comment]");if(delComment){deleteChapterComment(delComment.dataset.deleteComment);return}const refreshTeams=e.target.closest("[data-refresh-teams]");if(refreshTeams){loadAdminTeams();return}const refreshSL=e.target.closest("[data-refresh-superlikes]");if(refreshSL){loadAdminSuperLikeRequests();return}const slReceipt=e.target.closest("[data-open-super-receipt]");if(slReceipt){openSuperLikeReceipt(slReceipt.dataset.openSuperReceipt);return}const slReview=e.target.closest("[data-review-superlike]");if(slReview){reviewSuperLikeRequest(slReview.dataset.reviewSuperlike,slReview.dataset.superAction==="approve");return}const target=e.target.closest("[data-view-target]");if(target){e.preventDefault();showView(target.dataset.viewTarget);return}const close=e.target.closest("[data-close-dialog]");if(close){$(close.dataset.closeDialog)?.close();return}const copy=e.target.closest("[data-copy-text]");if(copy){copyText(copy.dataset.copyText);return}const plan=e.target.closest("[data-select-plan]");if(plan){selectMembershipPlan(plan.dataset.selectPlan);return}const refreshMember=e.target.closest("[data-refresh-membership]");if(refreshMember){loadMembershipData();return}const refreshAdmin=e.target.closest("[data-refresh-admin]");if(refreshAdmin){loadAdminRequests();return}const receipt=e.target.closest("[data-open-receipt]");if(receipt){openMembershipReceipt(receipt.dataset.openReceipt);return}const review=e.target.closest("[data-review-request]");if(review){reviewMembershipRequest(review.dataset.reviewRequest,review.dataset.reviewAction==="approve");return}const fav=e.target.closest("[data-favorite]");if(fav){e.stopPropagation();toggleFavorite(fav.dataset.favorite);return}const manga=e.target.closest("[data-open-manga]");if(manga){openManga(manga.dataset.openManga);return}const read=e.target.closest("[data-read-chapter]");if(read){openReader(read.dataset.readChapter);return}const first=e.target.closest("[data-read-first]");if(first&&state.currentChapters[0]){openReader(state.currentChapters[0].id);return}const manage=e.target.closest("[data-manage-manga]");if(manage){openManageManga(manage.dataset.manageManga);return}const pub=e.target.closest("[data-toggle-publish]");if(pub){toggleMangaPublish(pub.dataset.togglePublish);return}const del=e.target.closest("[data-delete-manga]");if(del){deleteManga(del.dataset.deleteManga);return}const tc=e.target.closest("[data-toggle-chapter]");if(tc){toggleChapter(tc.dataset.toggleChapter);return}const dc=e.target.closest("[data-delete-chapter]");if(dc)deleteChapter(dc.dataset.deleteChapter)}
 function bindEvents(){$("loginTab").addEventListener("click",()=>configureAuthMode("login"));$("registerTab").addEventListener("click",()=>configureAuthMode("register"));$("forgotPasswordBtn").addEventListener("click",requestPasswordReset);$("resetPasswordForm").addEventListener("submit",updateRecoveredPassword);$("authForm").addEventListener("submit",handleAuthSubmit);$("translatorTeamJoinForm")?.addEventListener("submit",joinTranslatorTeam);$("logoutBtn").addEventListener("click",()=>db?.auth.signOut());$("profileLogoutBtn").addEventListener("click",()=>db?.auth.signOut());$("searchInput").addEventListener("input",renderLibrary);$("adminUserSearch")?.addEventListener("input",renderAdminUsers);$("adminUserStatusFilter")?.addEventListener("change",renderAdminUsers);$("adminRequestFilter")?.addEventListener("change",renderAdminRequests);$("membershipPlanSelect").addEventListener("change",e=>selectMembershipPlan(e.target.value));$("membershipRequestForm").addEventListener("submit",submitMembershipRequest);$("openCreateMangaBtn").addEventListener("click",resetCreateMangaDialog);$("openCreateChapterBtn")?.addEventListener("click",openQuickChapterDialog);$("quickCreateChapterForm")?.addEventListener("submit",quickCreateChapter);$("createMangaForm").addEventListener("submit",createManga);$("closeReaderBtn").addEventListener("click",closeReader);$("prevChapterBtn").addEventListener("click",()=>navigateReader(-1));$("nextChapterBtn").addEventListener("click",()=>navigateReader(1));$("readerTopBtn").addEventListener("click",()=>$("readerOverlay").scrollTo({top:0,behavior:"smooth"}));$("readerOverlay").addEventListener("scroll",trackReaderProgress,{passive:true});$("chapterLikeBtn")?.addEventListener("click",toggleChapterLike);$("chapterCommentForm")?.addEventListener("submit",submitChapterComment);$("openSuperLikeBtn")?.addEventListener("click",openSuperLikeDialog);$("superLikeQuantity")?.addEventListener("input",updateSuperLikeTotal);$("superLikeForm")?.addEventListener("submit",submitSuperLikeRequest);$("adminCreateTeamForm")?.addEventListener("submit",createAdminTeam);document.addEventListener("click",handleDocumentClick);document.querySelectorAll(".nav-link[data-view]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close()}));document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("readerOverlay").classList.contains("hidden"))closeReader()})}
 async function init(){document.body.classList.add("guest-mode");bindEvents();registerServiceWorker();configureAuthMode("login");if(!hasConfig){$("setupNotice").textContent="Системийг ажиллуулахын тулд config.js файлд Supabase URL болон anon key-г оруулна уу.";$("setupNotice").classList.remove("hidden");return}try{db=window.supabase.createClient(config.SUPABASE_URL,config.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});db.auth.onAuthStateChange((event,session)=>setTimeout(()=>{if(event==="PASSWORD_RECOVERY")$("resetPasswordDialog").showModal();handleSession(session)},0));const recoveryLink=location.hash.includes("type=recovery")||location.search.includes("type=recovery");const{data,error}=await db.auth.getSession();if(error)throw error;await handleSession(data.session);if(location.hash.includes("access_token")||location.hash.includes("refresh_token")||location.search.includes("code="))history.replaceState({},document.title,location.pathname);if(recoveryLink)$("resetPasswordDialog").showModal()}catch(err){$("setupNotice").textContent=`Supabase холболтын алдаа: ${err.message}`;$("setupNotice").classList.remove("hidden")}}
 init();
